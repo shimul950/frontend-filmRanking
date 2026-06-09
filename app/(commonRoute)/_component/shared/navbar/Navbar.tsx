@@ -36,7 +36,7 @@ import {
 import { ModeToggle } from "@/components/theme-toggle";
 
 export default function Navbar() {
-  
+
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-md">
@@ -124,7 +124,7 @@ export default function Navbar() {
         {/* RIGHT SIDE */}
         <div className="flex items-center gap-2">
           {/* THEME TOGGLE */}
-          <ModeToggle/>
+          <ModeToggle />
 
           {/* WISHLIST */}
           <Button
@@ -136,9 +136,17 @@ export default function Navbar() {
           </Button>
 
           {/* LOGIN */}
-          <Button className="hidden rounded-xl bg-red-600 text-white hover:bg-red-700 md:flex">
-            Login
-          </Button>
+          <Link href="/login">
+            <Button className="hidden rounded-xl bg-red-600 text-white hover:bg-red-700 md:flex">
+              Login
+            </Button>
+          </Link>
+          {/* SIGN UP */}
+          <Link href="/signup">
+            <Button className="hidden rounded-xl bg-red-600 text-white hover:bg-red-700 md:flex">
+                SignUp
+            </Button>
+          </Link>
 
           {/* PROFILE */}
           <div className="hidden h-10 w-10 items-center justify-center rounded-full bg-zinc-800 text-sm font-bold text-white md:flex">
