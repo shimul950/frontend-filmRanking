@@ -8,8 +8,9 @@ export default function commonLayout({
   user: React.ReactNode
 }>) {
   return (   
-      <div>
+      <div >
         {admin}
+        {user}
       </div>
   )
 }

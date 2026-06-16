@@ -2,6 +2,6 @@
 
 export default function adminPage() {
   return (
-    <div>admin page</div>
+    <div>admin dashboard page</div>
   )
 }

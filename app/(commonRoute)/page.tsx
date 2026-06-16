@@ -53,7 +53,7 @@ import HeroSlider from "./_component/page/home/banner";
 export default function commonRoutePage() {
   return (
     
-    <div>
+    <div className="">
       <HeroSlider banners={banners}/>
     </div>
   )
