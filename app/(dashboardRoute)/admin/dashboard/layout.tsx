@@ -1,6 +1,6 @@
 
 
-export default function dashboardLayout({
+export default function adminDashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
@@ -8,7 +8,7 @@ export default function dashboardLayout({
   return (
     
       <div>
-          dashboard layout
+          admin dashboardlayout
         {children}
 
       </div>

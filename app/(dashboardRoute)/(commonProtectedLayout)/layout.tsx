@@ -1,6 +1,6 @@
 
 
-export default function dashboardLayout({
+export default function commonProtectedLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
@@ -8,7 +8,9 @@ export default function dashboardLayout({
   return (
     
       <div>
-          dashboard layout
+
+        common protected layout
+          
         {children}
 
       </div>
