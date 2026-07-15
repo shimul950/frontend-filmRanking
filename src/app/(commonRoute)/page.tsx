@@ -1,3 +1,4 @@
+import React from "react";
 import HeroSlider from "./_component/page/home/banner";
 
  const banners = [
@@ -58,3 +59,6 @@ export default function commonRoutePage() {
     </div>
   )
 }
+
+
+

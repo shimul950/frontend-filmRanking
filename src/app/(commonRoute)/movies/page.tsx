@@ -1,23 +1,24 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import Link from 'next/link';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import { getMovies } from './_action';
+import MoviesList from '@/components/modules/movies/moviesList';
 
-export default async function page() {
-  const data = await fetch("http://localhost:5000/api/v1/media")
-  const movies = await data.json();
-  
-  return (
-    <div>movies page
-      <ul>
-        {movies?.data.data.map((movie : any) =>(
-          <li key={movie.id}>
-            {movie.title}
-            <Link href={`movies/${movie.id}`}>View details</Link>
-          </li>
-          
-        ))}
-      </ul>
-    </div>
+
+export default async function moviesPage() {
+    const queryClient = new QueryClient()
+
+  await queryClient.prefetchQuery({
+    queryKey: ['movies'],
+    queryFn: getMovies,
+  })
+
+   return (
+    // Neat! Serialization is now as easy as passing props.
+    // HydrationBoundary is a Client Component, so hydration will happen there.
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <MoviesList/>
+    </HydrationBoundary>
   )
 }
