@@ -63,7 +63,7 @@ export default function AppField({
                 className={cn(
                     prepend && "pl-10",
                     append && "pr-10",
-                    disabled && "cursor-not-allowed opacity-50"
+                    hasError && "border-destructive focus-visible:ring-destructive/20",
                 )}
 
             ></Input>
