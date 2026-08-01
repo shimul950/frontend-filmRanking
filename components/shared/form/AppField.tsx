@@ -16,7 +16,7 @@ const getErrorMessage = (error: unknown): string => {
 
 type AppFieldProps = {
     field: AnyFieldApi;
-    lebel?: string;
+    label?: string;
     type?: "text" | "password" | "email" | "number";
     placeholder?: string;
     append?: React.ReactNode;
@@ -28,7 +28,7 @@ type AppFieldProps = {
 
 
 export default function AppField({
-    field, lebel, type = "text", placeholder, append, prepend, className, disabled =false
+    field, label, type = "text", placeholder, append, prepend, className, disabled =false
 }: AppFieldProps) {
     const firstError = field.state.meta.isTouched && field.state.meta.errors.length > 0 ? getErrorMessage(field.state.meta.errors[0]) : null;
 
@@ -40,7 +40,7 @@ export default function AppField({
             htmlFor={field.name}
             className={cn(hasError && "text-destructive")}
         >
-            {lebel}
+            {label}
         </Label>
 
         <div className="relative">
