@@ -142,7 +142,7 @@ export default function Navbar() {
             </Button>
           </Link>
           {/* SIGN UP */}
-          <Link href="/signup">
+          <Link href="/register">
             <Button className="hidden rounded-xl bg-red-600 text-white hover:bg-red-700 md:flex">
                 SignUp
             </Button>

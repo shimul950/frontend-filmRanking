@@ -13,3 +13,16 @@ export interface ILoginResponse {
         emailVerified: boolean;
     }
 }
+
+export interface IRegisterResponse {
+    user: {
+        needPasswordChange: boolean;
+        email: string;
+        name: string;
+        role: string;
+        image: string;
+        status: string;
+        isDeleted: boolean;
+        emailVerified: boolean;
+    }
+}

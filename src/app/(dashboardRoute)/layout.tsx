@@ -6,11 +6,11 @@ export default function dashboardLayout({
   children: React.ReactNode
 }>) {
   return (
-    
-      <div>
-          dashboard layout
-        {children}
 
-      </div>
+    <div>
+      dashboard layout
+      {children}
+
+    </div>
   )
 }
