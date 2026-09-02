@@ -4,6 +4,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils";
 import QueryProviders from "../providers/QueryProviders";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'})
 
@@ -24,12 +25,13 @@ export default function RootLayout({
       className={cn("antialiased", fontMono.variable, "font-sans", inter.variable)}
     >
       <body>
-        root layout
+        <TooltipProvider>
         <ThemeProvider>
           <QueryProviders>
             {children}
           </QueryProviders>
         </ThemeProvider>
+        </TooltipProvider>
       </body>
     </html>
   )

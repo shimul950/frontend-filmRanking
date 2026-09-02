@@ -58,7 +58,7 @@ export default function RegisterForm() {
     })
 
     return (
-        <Card className='w-full max-w-md mx-auto shadow-md'>
+        <Card className='w-full max-w-md mx-auto shadow-md my-10'>
             <CardHeader className='text-center'>
                 <CardTitle className='text-2xl font-bold'>
                     Create your account

@@ -25,7 +25,7 @@ export const loginAction = async (payload: ILoginPayload): Promise<ILoginRespons
         await setTokenInCookies("refreshToken", refreshToken);
         await setTokenInCookies("better-auth.session_token", token, 60 * 60 * 24);
 
-        redirect("/dashboard");
+        redirect("/");
     }
     catch(error :any){
         if(error && typeof error === 'object' && 'digest' in error && typeof error.digest === 'string' && error.digest.startsWith("NEXT_REDIRECT")){

@@ -34,3 +34,41 @@ export type IVerifyEmailPayload = z.infer<typeof verifyEmailZodSchema> & {
 export type IRegisterPayload = z.infer<typeof registerZodSchema>;
 
 export type ILoginPayload = z.infer<typeof loginZodSchema>
+
+
+
+export const forgotPasswordSchema = z.object({
+    email: z.string().email("Enter a valid email"),
+});
+export type IForgotPasswordPayload = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z
+    .object({
+        otp: z.string().min(6, "Enter the 6-digit code").max(6, "Enter the 6-digit code"),
+        newPassword: z.string().min(8, "At least 8 characters"),
+        confirmPassword: z.string(),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+        message: "Passwords don't match",
+        path: ["confirmPassword"],
+    });
+export type IResetPasswordPayload = z.infer<typeof resetPasswordSchema>;
+
+export const changePasswordSchema = z
+    .object({
+        currentPassword: z.string().min(1, "Current password is required"),
+        newPassword: z.string().min(8, "At least 8 characters"),
+        confirmPassword: z.string(),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+        message: "Passwords don't match",
+        path: ["confirmPassword"],
+    });
+export type IChangePasswordPayload = z.infer<typeof changePasswordSchema>;
+
+
+export const updateProfileSchema = z.object({
+    name: z.string().min(2, "Name is too short"),
+    image: z.string().url("Enter a valid image URL").optional().or(z.literal("")),
+});
+export type IUpdateProfilePayload = z.infer<typeof updateProfileSchema>;

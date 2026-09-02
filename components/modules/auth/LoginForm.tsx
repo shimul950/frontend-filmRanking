@@ -14,7 +14,7 @@ import Link from 'next/link';
 import React, { useState } from 'react'
 
 export default function LoginForm() {
-    // const queryClient = useQueryClient();
+    const queryClient = useQueryClient();
 
     const [serverError, setServerError] = useState<string | null>(null);
 
@@ -40,6 +40,16 @@ export default function LoginForm() {
                 }
 
             } catch (error: any) {
+                if (
+                    error &&
+                    typeof error === 'object' &&
+                    'digest' in error &&
+                    typeof error.digest === 'string' &&
+                    error.digest.startsWith("NEXT_REDIRECT")
+                ) {
+                    queryClient.invalidateQueries({ queryKey: ["me"] });
+                    throw error;
+                }
                 console.log("LoginForm onSubmit error:", error.message);
                 setServerError(`Login failed: ${error.message}`);
             }
@@ -47,7 +57,7 @@ export default function LoginForm() {
     })
 
     return (
-        <Card className='w-full max-w-md mx-auto shadow-md'>
+        <Card className='w-full max-w-md mx-auto shadow-md my-10'>
             <CardHeader className='text-center'>
                 <CardTitle className='text-2xl font-bold'>
                     Welcome back!
@@ -164,8 +174,6 @@ export default function LoginForm() {
                     className='w-full'
                     onClick={() => {
                         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
-                        // todo: Redirect path after login in frontend
-
                         window.location.href = `${baseUrl}/auth/login/google`
                     }}
                 >

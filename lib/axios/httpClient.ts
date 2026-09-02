@@ -1,6 +1,5 @@
-
 import { ApiResponse } from "@/src/types/api.types";
-import axios from "axios"
+import axios, { AxiosResponse } from "axios"
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 if(!API_BASE_URL){
@@ -88,10 +87,42 @@ const httpDELETE = async<TData>(endpoint: string, options?: ApiRequestOptions): 
     }
 }
 
+// Same as httpPost, but returns the FULL axios response (status, headers,
+// data) instead of just response.data. Needed anywhere we have to read
+// response headers directly — e.g. relaying Set-Cookie from
+// /auth/refresh-token back to the browser via Next's cookie store.
+const httpPostRaw = async <TData>(endpoint: string, data: unknown, options?: ApiRequestOptions): Promise<AxiosResponse<ApiResponse<TData>>> => {
+    try{
+        const response = await axiosInstance().post<ApiResponse<TData>>(endpoint,data,{
+            params: options?.params,
+            headers: options?.headers
+        })
+        return response
+    }catch(error){
+        console.error(`POST (raw) request ${endpoint} failed`, error)
+        throw error
+    }
+}
+
+const httpPatchRaw = async <TData>(endpoint: string, data: unknown, options?: ApiRequestOptions): Promise<AxiosResponse<ApiResponse<TData>>> => {
+    try{
+        const response = await axiosInstance().patch<ApiResponse<TData>>(endpoint,data,{
+            params: options?.params,
+            headers: options?.headers
+        })
+        return response
+    }catch(error){
+        console.error(`PATCH (raw) request ${endpoint} failed`, error)
+        throw error
+    }
+}
+
 export const httpClient ={
     get : httpGet,
     put : httpPut,
     post : httpPost,
     patch : httpPatch,
-    delete : httpDELETE
+    delete : httpDELETE,
+    postRaw: httpPostRaw,
+    patchRaw: httpPatchRaw
 }
