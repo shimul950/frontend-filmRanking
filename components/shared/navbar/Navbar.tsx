@@ -42,7 +42,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 function getDashboardPath(role: string) {
   switch (role) {
     case "SUPER_ADMIN":
-      return "/super-admin/dashboard";
+      return "/admin/dashboard";
     case "ADMIN":
       return "/admin/dashboard";
     default:

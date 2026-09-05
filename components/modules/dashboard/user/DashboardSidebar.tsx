@@ -45,6 +45,7 @@ export function DashboardSidebar() {
     const { user } = useAuth()
 
     const isAdmin = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN"
+    
 
     return (
         <Sidebar collapsible="icon">
@@ -113,7 +114,7 @@ export function DashboardSidebar() {
                                     <SidebarMenuButton asChild tooltip="Admin panel">
                                         <Link href="/admin/dashboard">
                                             <ShieldCheck />
-                                            <span>Admin Panel</span>
+                                            <span> Admin Panel</span>
                                         </Link>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>

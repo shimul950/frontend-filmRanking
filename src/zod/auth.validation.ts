@@ -72,3 +72,21 @@ export const updateProfileSchema = z.object({
     image: z.string().url("Enter a valid image URL").optional().or(z.literal("")),
 });
 export type IUpdateProfilePayload = z.infer<typeof updateProfileSchema>;
+
+
+
+export const createAdminSchema = z.object({
+    password: z.string().min(8, "At least 8 characters"),
+    name: z.string().min(2, "Name is too short"),
+    email: z.string().email("Enter a valid email"),
+    image: z.string().url("Enter a valid image URL").optional().or(z.literal("")),
+    contactNumber: z.string().min(6, "Enter a valid contact number"),
+});
+export type ICreateAdminForm = z.infer<typeof createAdminSchema>;
+
+export const updateAdminSchema = z.object({
+    name: z.string().min(2, "Name is too short").optional(),
+    image: z.string().url("Enter a valid image URL").optional().or(z.literal("")),
+    contactNumber: z.string().min(6, "Enter a valid contact number").optional(),
+});
+export type IUpdateAdminForm = z.infer<typeof updateAdminSchema>;

@@ -6,11 +6,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { updateProfileAction } from '@/src/app/(dashboardRoute)/(commonProtectedLayout)/myProfile/_action';
 import { useForm } from '@tanstack/react-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Pencil, X } from 'lucide-react';
+import { BadgeCheck, Calendar, KeyRound, Mail, Pencil, ShieldCheck, X } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react'
 
 interface IProfileUser {
@@ -59,109 +61,174 @@ export default function MyProfileForm({ user }: { user: IProfileUser }) {
         }
     })
 
+    const memberSince = new Date(user.createdAt).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    });
+
     return (
-        <Card className='w-full max-w-lg mx-auto shadow-md'>
-            <CardHeader className='flex flex-row items-start justify-between'>
-                <div>
-                    <CardTitle className='text-2xl font-bold'>My Profile</CardTitle>
-                    <CardDescription>View and manage your account information.</CardDescription>
-                </div>
-                {!isEditing && (
-                    <Button variant="outline" size="icon" onClick={() => setIsEditing(true)}>
-                        <Pencil className='size-4' />
-                    </Button>
-                )}
-            </CardHeader>
+        <div className="w-full max-w-4xl mx-auto space-y-6">
+            {/* HERO CARD */}
+            <Card className="shadow-md">
+                <CardContent className="px-4 sm:px-8 py-8">
+                    <div className="flex flex-col items-center sm:flex-row sm:items-center sm:gap-6">
+                        <Avatar className="h-28 w-28 sm:h-32 sm:w-32 border-4 border-background shadow-lg shrink-0">
+                            <AvatarImage
+                                src={previewUrl ?? user.image ?? undefined}
+                                alt={user.name}
+                                className="object-cover"
+                            />
+                            <AvatarFallback className="text-3xl sm:text-4xl font-bold bg-zinc-800 text-white">
+                                {user.name?.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                        </Avatar>
 
-            <CardContent>
-                <div className='flex items-center gap-4 mb-6'>
-                    <Avatar className='h-16 w-16'>
-                        <AvatarImage src={previewUrl ?? user.image ?? undefined} alt={user.name} />
-                        <AvatarFallback className='text-lg'>
-                            {user.name?.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                    </Avatar>
-                    <div>
-                        <p className='font-semibold'>{user.name}</p>
-                        <p className='text-sm text-muted-foreground'>{user.email}</p>
-                        <div className='flex gap-2 mt-1'>
-                            <Badge variant="secondary">{user.role}</Badge>
-                            <Badge variant={user.emailVerified ? "default" : "destructive"}>
-                                {user.emailVerified ? "Verified" : "Unverified"}
-                            </Badge>
+                        <div className="mt-4 sm:mt-0 text-center sm:text-left flex-1 min-w-0">
+                            <h1 className="text-2xl sm:text-3xl font-bold truncate">{user.name}</h1>
+                            <p className="text-sm sm:text-base text-muted-foreground truncate">{user.email}</p>
+
+                            <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-3">
+                                <Badge variant="secondary" className="gap-1">
+                                    <ShieldCheck className="size-3" />
+                                    {user.role}
+                                </Badge>
+                                <Badge variant={user.emailVerified ? "default" : "destructive"} className="gap-1">
+                                    <BadgeCheck className="size-3" />
+                                    {user.emailVerified ? "Verified" : "Unverified"}
+                                </Badge>
+                                <Badge variant="outline">{user.status}</Badge>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                {isEditing ? (
-                    <form
-                        method="POST"
-                        action="#"
-                        noValidate
-                        onSubmit={(e) => { e.preventDefault(); e.stopPropagation(); form.handleSubmit(); }}
-                    >
-                        <form.Field name="name">
-                            {(field) => (
-                                <AppField field={field} label="Name" type="text" placeholder='Your name' className="mb-4" />
-                            )}
-                        </form.Field>
-
-                        <form.Field name="image">
-                            {(field) => (
-                                <div className='space-y-1.5 mb-4'>
-                                    <label className='text-sm font-medium'>Avatar</label>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => {
-                                            const file = e.target.files?.[0];
-                                            field.handleChange(file);
-                                            if (file) {
-                                                setPreviewUrl(URL.createObjectURL(file));
-                                            }
-                                        }}
-                                        className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-primary-foreground"
-                                    />
-                                </div>
-                            )}
-                        </form.Field>
-
-                        {serverError && (
-                            <Alert variant="destructive" className="mb-4">
-                                <AlertDescription>{serverError}</AlertDescription>
-                            </Alert>
-                        )}
-
-                        <div className='flex gap-2'>
-                            <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting] as const}>
-                                {([canSubmit, isSubmitting]) => (
-                                    <AppSubmitButton isPending={isSubmitting || isPending} pendingLebel='Saving.....' disabled={!canSubmit}>
-                                        Save changes
-                                    </AppSubmitButton>
-                                )}
-                            </form.Subscribe>
+                        {!isEditing && (
                             <Button
-                                type="button"
                                 variant="outline"
-                                onClick={() => { setIsEditing(false); setServerError(null); setPreviewUrl(null); form.reset(); }}
+                                size="sm"
+                                onClick={() => setIsEditing(true)}
+                                className="mt-4 sm:mt-0 gap-2 shrink-0"
                             >
-                                <X className='size-4 mr-1' /> Cancel
+                                <Pencil className="size-4" />
+                                <span className="hidden sm:inline">Edit profile</span>
                             </Button>
-                        </div>
-                    </form>
-                ) : (
-                    <>
-                        {success && (
-                            <Alert className="mb-4">
-                                <AlertDescription>Profile updated successfully.</AlertDescription>
-                            </Alert>
                         )}
-                        <div className='text-sm text-muted-foreground'>
-                            Member since {new Date(user.createdAt).toLocaleDateString()}
-                        </div>
-                    </>
-                )}
-            </CardContent>
-        </Card>
+                    </div>
+
+                    {success && !isEditing && (
+                        <Alert className="mt-6">
+                            <AlertDescription>Profile updated successfully.</AlertDescription>
+                        </Alert>
+                    )}
+
+                    {isEditing && (
+                        <>
+                            <Separator className="my-6" />
+                            <form
+                                method="POST"
+                                action="#"
+                                noValidate
+                                onSubmit={(e) => { e.preventDefault(); e.stopPropagation(); form.handleSubmit(); }}
+                                className="max-w-md mx-auto sm:mx-0"
+                            >
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <form.Field name="name">
+                                        {(field) => (
+                                            <AppField field={field} label="Name" type="text" placeholder='Your name' className="sm:col-span-2" />
+                                        )}
+                                    </form.Field>
+
+                                    <form.Field name="image">
+                                        {(field) => (
+                                            <div className="space-y-1.5 sm:col-span-2">
+                                                <label className="text-sm font-medium">Avatar</label>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0];
+                                                        field.handleChange(file);
+                                                        if (file) setPreviewUrl(URL.createObjectURL(file));
+                                                    }}
+                                                    className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-primary-foreground cursor-pointer"
+                                                />
+                                            </div>
+                                        )}
+                                    </form.Field>
+                                </div>
+
+                                {serverError && (
+                                    <Alert variant="destructive" className="mt-4">
+                                        <AlertDescription>{serverError}</AlertDescription>
+                                    </Alert>
+                                )}
+
+                                <div className="flex gap-2 mt-4">
+                                    <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting] as const}>
+                                        {([canSubmit, isSubmitting]) => (
+                                            <AppSubmitButton isPending={isSubmitting || isPending} pendingLebel='Saving.....' disabled={!canSubmit}>
+                                                Save changes
+                                            </AppSubmitButton>
+                                        )}
+                                    </form.Subscribe>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => { setIsEditing(false); setServerError(null); setPreviewUrl(null); form.reset(); }}
+                                    >
+                                        <X className="size-4 mr-1" /> Cancel
+                                    </Button>
+                                </div>
+                            </form>
+                        </>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* INFO GRID */}
+            {!isEditing && (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <Card className="shadow-sm">
+                        <CardContent className="flex items-center gap-3 py-5">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-600/10 text-red-600">
+                                <Mail className="size-5" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-xs text-muted-foreground">Email</p>
+                                <p className="text-sm font-medium truncate">{user.email}</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="shadow-sm">
+                        <CardContent className="flex items-center gap-3 py-5">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-600/10 text-red-600">
+                                <Calendar className="size-5" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-xs text-muted-foreground">Member since</p>
+                                <p className="text-sm font-medium">{memberSince}</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="shadow-sm">
+                        <CardContent className="flex items-center justify-between gap-3 py-5">
+                            <div className="flex items-center gap-3 min-w-0">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-600/10 text-red-600">
+                                    <KeyRound className="size-5" />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-xs text-muted-foreground">Security</p>
+                                    <p className="text-sm font-medium">Password</p>
+                                </div>
+                            </div>
+                            <Button asChild variant="ghost" size="sm">
+                                <Link href="/change-password">Change</Link>
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+        </div>
     )
 }
