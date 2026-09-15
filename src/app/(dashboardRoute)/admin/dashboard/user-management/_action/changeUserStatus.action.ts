@@ -1,11 +1,11 @@
-"use server"
+"use server";
 
 import { httpClient } from "@/lib/axios/httpClient";
 import { buildCookieHeader } from "@/lib/cookie-relay";
 import { ApiErrorResponse } from "@/src/types/api.types";
-import { cookies } from "next/headers";
+import axios from "axios";
 import { revalidatePath } from "next/cache";
-
+import { cookies } from "next/headers";
 
 export async function changeUserStatusAction(
     userId: string,
@@ -26,10 +26,16 @@ export async function changeUserStatusAction(
         );
         revalidatePath("/admin/dashboard/user-management");
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
+        let message = "Failed to update user status";
+        if (axios.isAxiosError(error)) {
+            message = error.response?.data?.message || error.message;
+        } else if (error instanceof Error) {
+            message = error.message;
+        }
         return {
             success: false,
-            messsage: error?.response?.data?.message || "Failed to update user status",
+            messsage: message,
         };
     }
 }

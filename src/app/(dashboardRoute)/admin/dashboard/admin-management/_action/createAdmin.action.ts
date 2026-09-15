@@ -1,9 +1,10 @@
-"use server"
+"use server";
 
 import { httpClient } from "@/lib/axios/httpClient";
 import { buildCookieHeader } from "@/lib/cookie-relay";
 import { ApiErrorResponse } from "@/src/types/api.types";
 import { createAdminSchema, ICreateAdminForm } from "@/src/zod/auth.validation";
+import axios from "axios";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 
@@ -12,7 +13,7 @@ export async function createAdminAction(
 ): Promise<{ success: true } | ApiErrorResponse> {
     const parsed = createAdminSchema.safeParse(payload);
     if (!parsed.success) {
-        return { success: false, messsage: parsed.error.issues[0].message || "Invalid input" };
+        return { success: false, messsage: parsed.error.issues[0]?.message || "Invalid input" };
     }
 
     const cookieStore = await cookies();
@@ -38,10 +39,16 @@ export async function createAdminAction(
         );
         revalidatePath("/admin/dashboard/admin-management");
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
+        let message = "Failed to create admin";
+        if (axios.isAxiosError(error)) {
+            message = error.response?.data?.message || error.message;
+        } else if (error instanceof Error) {
+            message = error.message;
+        }
         return {
             success: false,
-            messsage: error?.response?.data?.message || "Failed to create admin",
+            messsage: message,
         };
     }
 }

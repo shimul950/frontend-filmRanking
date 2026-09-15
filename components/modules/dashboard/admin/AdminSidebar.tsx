@@ -5,12 +5,10 @@ import {
     Users,
     Film,
     Tags,
+    Tag,
     MonitorPlay,
     MessageSquareText,
     ArrowLeftRight,
-    ChevronRight,
-    UserPlus,
-    List,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -25,22 +23,14 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarMenuSub,
-    SidebarMenuSubButton,
-    SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from "@/components/ui/collapsible"
 import { useAuth } from "@/hooks/useAuth"
 
 const managementNav = [
-
     { title: "Movie Management", url: "/admin/dashboard/movie-management", icon: Film },
     { title: "Genre Management", url: "/admin/dashboard/genre-management", icon: Tags },
     { title: "Platform Management", url: "/admin/dashboard/platform-management", icon: MonitorPlay },
+    { title: "Tag Management", url: "/admin/dashboard/tag-management", icon: Tag },
     { title: "Review Management", url: "/admin/dashboard/review-management", icon: MessageSquareText },
     { title: "User Management", url: "/admin/dashboard/user-management", icon: Users },
 ]
@@ -89,51 +79,21 @@ export function AdminSidebar() {
                     <SidebarGroupLabel>Management</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {/* Admin Management — SUPER_ADMIN only, collapsible */}
                             {isSuperAdmin && (
-                                <Collapsible
-                                    defaultOpen={pathname.startsWith("/admin/dashboard/admin-management")}
-                                    className="group/collapsible"
-                                >
-                                    <SidebarMenuItem>
-                                        <CollapsibleTrigger asChild>
-                                            <SidebarMenuButton tooltip="Admin Management">
-                                                <Users />
-                                                <span>Admin Management</span>
-                                                <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                                            </SidebarMenuButton>
-                                        </CollapsibleTrigger>
-                                        <CollapsibleContent>
-                                            <SidebarMenuSub>
-                                                <SidebarMenuSubItem>
-                                                    <SidebarMenuSubButton
-                                                        asChild
-                                                        isActive={pathname === "/admin/dashboard/admin-management"}
-                                                    >
-                                                        <Link href="/admin/dashboard/admin-management">
-                                                            <List className="size-4" />
-                                                            <span>All Admins</span>
-                                                        </Link>
-                                                    </SidebarMenuSubButton>
-                                                </SidebarMenuSubItem>
-                                                <SidebarMenuSubItem>
-                                                    <SidebarMenuSubButton
-                                                        asChild
-                                                        isActive={pathname === "/admin/dashboard/admin-management?create=true"}
-                                                    >
-                                                        <Link href="/admin/dashboard/admin-management?create=true">
-                                                            <UserPlus className="size-4" />
-                                                            <span>Create Admin</span>
-                                                        </Link>
-                                                    </SidebarMenuSubButton>
-                                                </SidebarMenuSubItem>
-                                            </SidebarMenuSub>
-                                        </CollapsibleContent>
-                                    </SidebarMenuItem>
-                                </Collapsible>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={pathname.startsWith("/admin/dashboard/admin-management")}
+                                        tooltip="Admin Management"
+                                    >
+                                        <Link href="/admin/dashboard/admin-management">
+                                            <Users />
+                                            <span>Admin Management</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
                             )}
 
-                            {/* Everything else — flat links, unaffected by the collapsible above */}
                             {managementNav.map((item) => (
                                 <SidebarMenuItem key={item.url}>
                                     <SidebarMenuButton

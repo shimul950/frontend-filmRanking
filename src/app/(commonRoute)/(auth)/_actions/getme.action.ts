@@ -49,13 +49,17 @@ function relaySetCookies(
         const maxAgeAttr = attrs.find((a) => a.toLowerCase().startsWith("max-age="));
         const maxAge = maxAgeAttr ? parseInt(maxAgeAttr.split("=")[1], 10) : undefined;
 
-        cookieStore.set(name, value, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            path: "/",
-            ...(maxAge ? { maxAge } : {}),
-        });
+        try {
+            cookieStore.set(name, value, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/",
+                ...(maxAge ? { maxAge } : {}),
+            });
+        } catch {
+            // In Server Components / layouts, cookies cannot be set directly; silently catch
+        }
     }
 }
 

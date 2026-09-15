@@ -2,7 +2,6 @@
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -26,12 +25,9 @@ import { changeUserRoleAction } from '@/src/app/(dashboardRoute)/admin/dashboard
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { MoreHorizontal, Trash2, UserMinus } from 'lucide-react';
 import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import CreateAdminDialog from './CreateAdminDialogue';
 
 export default function AdminManagementTable() {
-
-    const searchParams = useSearchParams();
-    const shouldAutoOpenCreate = searchParams.get('create') === 'true';
 
     const queryClient = useQueryClient();
     const [actionError, setActionError] = useState<string | null>(null);
@@ -43,7 +39,7 @@ export default function AdminManagementTable() {
 
     const { mutateAsync: mutateDelete, isPending: isDeletePending } = useMutation({
         mutationFn: (adminId: string) => softDeleteAdminAction(adminId),
-        onSuccess: (result: any) => {
+        onSuccess: (result) => {
             if (!result.success) {
                 setActionError(result.messsage || "Failed to remove admin");
                 return;
@@ -51,24 +47,24 @@ export default function AdminManagementTable() {
             setActionError(null);
             queryClient.invalidateQueries({ queryKey: ["admins"] });
         },
-        onError: (error: any) => {
-            setActionError(error?.response?.data?.message || "Failed to remove admin");
+        onError: (error: Error) => {
+            setActionError(error.message || "Failed to remove admin");
         },
     });
 
     const { mutateAsync: mutateDemote, isPending: isDemotePending } = useMutation({
         mutationFn: (targetUserId: string) => changeUserRoleAction(targetUserId, "USER"),
-        onSuccess: (result: any) => {
+        onSuccess: (result) => {
             if (!result.success) {
-                setActionError(result.messsage || "Failed to demote admin");
+                setActionError(result.messsage || "Failed to remove admin");
                 return;
             }
             setActionError(null);
             queryClient.invalidateQueries({ queryKey: ["admins"] });
             queryClient.invalidateQueries({ queryKey: ["users"] });
         },
-        onError: (error: any) => {
-            setActionError(error?.response?.data?.message || "Failed to demote admin");
+        onError: (error: Error) => {
+            setActionError(error.message || "Failed to demote admin");
         },
     });
 
@@ -81,6 +77,10 @@ export default function AdminManagementTable() {
                     <AlertDescription>{actionError}</AlertDescription>
                 </Alert>
             )}
+
+            <div className="flex justify-end">
+                <CreateAdminDialog />
+            </div>
 
             <div className="rounded-md border overflow-x-auto">
                 <Table>

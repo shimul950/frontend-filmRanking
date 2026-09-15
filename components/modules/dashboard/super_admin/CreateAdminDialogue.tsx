@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import AppField from '@/components/shared/form/AppField';
-import AppSubmitButton from '@/components/shared/form/AppSubmitButton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
+import AppField from "@/components/shared/form/AppField";
+import AppSubmitButton from "@/components/shared/form/AppSubmitButton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
@@ -12,23 +12,24 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from '@/components/ui/dialog';
-import { createAdminAction } from '@/src/app/(dashboardRoute)/admin/dashboard/admin-management/_action/createAdmin.action';
-import { createAdminSchema, ICreateAdminForm } from '@/src/zod/auth.validation';
-import { useForm } from '@tanstack/react-form';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Eye, EyeOff, UserPlus } from 'lucide-react';
-import { useState } from 'react'
+} from "@/components/ui/dialog";
+import { createAdminAction } from "@/src/app/(dashboardRoute)/admin/dashboard/admin-management/_action/createAdmin.action";
+import { createAdminSchema, ICreateAdminForm } from "@/src/zod/auth.validation";
+import { useForm } from "@tanstack/react-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Eye, EyeOff, Shield, UserPlus } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
-export default function CreateAdminDialog({ defaultOpen = false }: { defaultOpen?: boolean }) {
+export default function CreateAdminDialog() {
     const queryClient = useQueryClient();
-    const [open, setOpen] = useState(defaultOpen);
+    const [open, setOpen] = useState(false);
     const [serverError, setServerError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
 
     const { mutateAsync, isPending } = useMutation({
         mutationFn: (payload: ICreateAdminForm) => createAdminAction(payload),
-    })
+    });
 
     const form = useForm({
         defaultValues: {
@@ -41,33 +42,51 @@ export default function CreateAdminDialog({ defaultOpen = false }: { defaultOpen
         onSubmit: async ({ value }) => {
             setServerError(null);
             try {
-                const result = await mutateAsync(value) as any;
+                const result = await mutateAsync(value);
                 if (!result.success) {
                     setServerError(result.messsage || "Failed to create admin");
                     return;
                 }
+                toast.success(`Admin "${value.name}" created successfully!`);
                 setOpen(false);
                 form.reset();
                 queryClient.invalidateQueries({ queryKey: ["admins"] });
-            } catch (error: any) {
-                setServerError(`Failed to create admin: ${error.message}`);
+            } catch (error: unknown) {
+                const message = error instanceof Error ? error.message : "Failed to create admin";
+                setServerError(`Failed to create admin: ${message}`);
             }
-        }
-    })
+        },
+    });
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog
+            open={open}
+            onOpenChange={(val) => {
+                setOpen(val);
+                if (!val) {
+                    setServerError(null);
+                    form.reset();
+                }
+            }}
+        >
             <DialogTrigger asChild>
-                <Button className="gap-2">
-                    <UserPlus className="size-4" />
-                    Create Admin
+                <Button className="gap-2 shadow-lg shadow-amber-500/15 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-xl h-10 px-4 cursor-pointer">
+                    <UserPlus className="h-4 w-4" />
+                    <span>Add Administrator</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Create a new admin</DialogTitle>
-                    <DialogDescription>
-                        This creates a login account with ADMIN privileges.
+
+            <DialogContent className="sm:max-w-md rounded-2xl p-6">
+                <DialogHeader className="space-y-1">
+                    <div className="flex items-center gap-2 text-amber-500">
+                        <Shield className="h-5 w-5" />
+                        <span className="text-xs font-bold uppercase tracking-wider">
+                            Privileged Staff
+                        </span>
+                    </div>
+                    <DialogTitle className="text-xl font-bold">Create New Administrator</DialogTitle>
+                    <DialogDescription className="text-muted-foreground text-sm">
+                        Create an account with elevated ADMIN management privileges.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -75,64 +94,88 @@ export default function CreateAdminDialog({ defaultOpen = false }: { defaultOpen
                     method="POST"
                     action="#"
                     noValidate
-                    onSubmit={(e) => { e.preventDefault(); e.stopPropagation(); form.handleSubmit(); }}
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        form.handleSubmit();
+                    }}
+                    className="space-y-4 pt-2"
                 >
-                    <div className="space-y-4">
-                        <form.Field name="name" validators={{ onChange: createAdminSchema.shape.name }}>
-                            {(field) => (
-                                <AppField field={field} label="Name" type="text" placeholder="Admin's name" />
-                            )}
-                        </form.Field>
+                    <form.Field name="name" validators={{ onChange: createAdminSchema.shape.name }}>
+                        {(field) => (
+                            <AppField field={field} label="Full Name" type="text" placeholder="e.g. John Doe" />
+                        )}
+                    </form.Field>
 
-                        <form.Field name="email" validators={{ onChange: createAdminSchema.shape.email }}>
-                            {(field) => (
-                                <AppField field={field} label="Email" type="email" placeholder="admin@example.com" />
-                            )}
-                        </form.Field>
+                    <form.Field name="email" validators={{ onChange: createAdminSchema.shape.email }}>
+                        {(field) => (
+                            <AppField field={field} label="Email Address" type="email" placeholder="admin@example.com" />
+                        )}
+                    </form.Field>
 
-                        <form.Field name="contactNumber" validators={{ onChange: createAdminSchema.shape.contactNumber }}>
-                            {(field) => (
-                                <AppField field={field} label="Contact number" type="text" placeholder="+880..." />
-                            )}
-                        </form.Field>
+                    <form.Field
+                        name="contactNumber"
+                        validators={{ onChange: createAdminSchema.shape.contactNumber }}
+                    >
+                        {(field) => (
+                            <AppField field={field} label="Contact Phone" type="text" placeholder="+1..." />
+                        )}
+                    </form.Field>
 
-                        <form.Field name="image">
-                            {(field) => (
-                                <AppField field={field} label="Avatar URL (optional)" type="text" placeholder="https://..." />
-                            )}
-                        </form.Field>
+                    <form.Field name="image">
+                        {(field) => (
+                            <AppField field={field} label="Avatar Image URL (optional)" type="text" placeholder="https://..." />
+                        )}
+                    </form.Field>
 
-                        <form.Field name="password" validators={{ onChange: createAdminSchema.shape.password }}>
-                            {(field) => (
-                                <AppField
-                                    field={field}
-                                    label="Temporary password"
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="Set an initial password"
-                                    append={
-                                        <Button onClick={() => setShowPassword(v => !v)} variant="ghost" size="icon" type="button">
-                                            {showPassword ? <EyeOff className='size-4' /> : <Eye className='size-4' />}
-                                        </Button>
-                                    }
-                                />
-                            )}
-                        </form.Field>
-                    </div>
+                    <form.Field
+                        name="password"
+                        validators={{ onChange: createAdminSchema.shape.password }}
+                    >
+                        {(field) => (
+                            <AppField
+                                field={field}
+                                label="Temporary Password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Set secure initial password"
+                                append={
+                                    <Button
+                                        onClick={() => setShowPassword((v) => !v)}
+                                        variant="ghost"
+                                        size="icon"
+                                        type="button"
+                                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                    >
+                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </Button>
+                                }
+                            />
+                        )}
+                    </form.Field>
 
                     {serverError && (
-                        <Alert variant="destructive" className="mt-4">
+                        <Alert variant="destructive">
                             <AlertDescription>{serverError}</AlertDescription>
                         </Alert>
                     )}
 
-                    <DialogFooter className="mt-6">
-                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                    <DialogFooter className="gap-2 sm:gap-0 pt-3">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setOpen(false)}
+                            className="rounded-xl"
+                        >
                             Cancel
                         </Button>
                         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting] as const}>
                             {([canSubmit, isSubmitting]) => (
-                                <AppSubmitButton isPending={isSubmitting || isPending} pendingLebel='Creating.....' disabled={!canSubmit}>
-                                    Create admin
+                                <AppSubmitButton
+                                    isPending={isSubmitting || isPending}
+                                    pendingLebel="Creating Administrator..."
+                                    disabled={!canSubmit}
+                                >
+                                    Create Administrator
                                 </AppSubmitButton>
                             )}
                         </form.Subscribe>
@@ -140,5 +183,5 @@ export default function CreateAdminDialog({ defaultOpen = false }: { defaultOpen
                 </form>
             </DialogContent>
         </Dialog>
-    )
-}   
+    );
+}

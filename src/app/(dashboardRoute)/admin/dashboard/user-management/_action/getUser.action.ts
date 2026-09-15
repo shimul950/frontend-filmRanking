@@ -50,7 +50,7 @@ export async function getUsersAction(
 
         return {
             users: response.data,
-            meta: (response as any).meta ?? { page: 1, limit: 10, total: 0, totalPages: 0 },
+            meta: response.meta ?? { page: 1, limit: 10, total: 0, totalPages: 0 },
         };
     } catch {
         return null;

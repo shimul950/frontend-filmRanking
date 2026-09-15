@@ -1,16 +1,11 @@
-import UserManagementTable from "@/components/modules/dashboard/admin/UserManagementTable";
+import UserManagementView from "@/components/modules/dashboard/user/UserManagementView";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+    title: "User Management | Admin Dashboard",
+    description: "View, search, inspect, and manage member accounts and access permissions.",
+};
 
 export default function UserManagementPage() {
-    return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold">User Management</h1>
-                <p className="text-muted-foreground">
-                    View, search, and manage user accounts.
-                </p>
-            </div>
-            <UserManagementTable />
-        </div>
-    )
+    return <UserManagementView />;
 }

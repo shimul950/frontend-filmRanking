@@ -1,16 +1,11 @@
-import AdminManagementTable from "@/components/modules/dashboard/super_admin/AdminManagementTable";
+import AdminManagementView from "@/components/modules/dashboard/super_admin/AdminManagementView";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+    title: "Administrator Management | Super Admin Dashboard",
+    description: "Manage system administrators, provision credentials, and supervise staff access privileges.",
+};
 
 export default function AdminManagementPage() {
-    return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold">Admin Management</h1>
-                <p className="text-muted-foreground">
-                    View and manage administrator accounts.
-                </p>
-            </div>
-            <AdminManagementTable />
-        </div>
-    )
+    return <AdminManagementView />;
 }
