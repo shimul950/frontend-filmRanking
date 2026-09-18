@@ -1,4 +1,5 @@
+import { FilmPageLoader } from "@/components/shared/FilmPageLoader";
+
 export default function GlobalLoading() {
-  // Or a custom loading skeleton component
-  return <p>Global Loading...</p>
+  return <FilmPageLoader text="Loading cinema experience..." />;
 }

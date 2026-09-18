@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Film,
   Heart,
@@ -10,16 +11,16 @@ import {
   ChevronDown,
   LayoutDashboard,
   LogOut,
+  Sparkles,
+  Clapperboard,
+  Flame,
+  Star,
+  Compass,
+  Bookmark,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
-
+import { MovieAutocompleteSearch } from "@/components/modules/movies/MovieAutocompleteSearch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,21 +29,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import {
   Sheet,
   SheetContent,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ModeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-// ASSUMPTION: adjust these paths to match your actual dashboard routes.
+const GENRES_LIST = [
+  { name: "Action", icon: Flame, color: "text-red-500" },
+  { name: "Sci-Fi", icon: Sparkles, color: "text-cyan-500" },
+  { name: "Drama", icon: Clapperboard, color: "text-amber-500" },
+  { name: "Thriller", icon: Compass, color: "text-purple-500" },
+  { name: "Animation", icon: Star, color: "text-pink-500" },
+  { name: "Comedy", icon: Sparkles, color: "text-emerald-500" },
+];
+
 function getDashboardPath(role: string) {
   switch (role) {
     case "SUPER_ADMIN":
-      return "/admin/dashboard";
     case "ADMIN":
       return "/admin/dashboard";
     default:
@@ -52,7 +61,10 @@ function getDashboardPath(role: string) {
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isLoading, logout, isLoggingOut } = useAuth();
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -60,113 +72,145 @@ export default function Navbar() {
     router.refresh();
   };
 
+  const navLinks = [
+    { label: "Home", href: "/" },
+    { label: "Movies", href: "/movies" },
+    { label: "Top Rated", href: "/movies?sort=rating" },
+  ];
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-md">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        {/* LEFT SIDE */}
-        <div className="flex items-center gap-8">
+    <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/80 backdrop-blur-xl transition-colors">
+      <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 sm:px-6 max-w-7xl">
+        {/* LEFT: LOGO & PRIMARY NAV */}
+        <div className="flex items-center gap-6 lg:gap-8">
           {/* LOGO */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-600 shadow-lg shadow-red-600/30">
-              <Film className="h-5 w-5 text-white" />
+          <Link href="/" className="group flex items-center gap-2.5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-600 text-white shadow-lg shadow-red-600/30 transition-transform duration-300 group-hover:scale-105">
+              <Film className="h-5 w-5" />
             </div>
 
             <div className="flex flex-col leading-none">
-              <span className="text-lg font-black tracking-wide text-white">
-                FILMRANK
-              </span>
-              <span className="text-[10px] uppercase tracking-[4px] text-red-500">
+              <div className="flex items-center gap-1">
+                <span className="text-lg font-black tracking-tight text-foreground">
+                  FILM<span className="text-red-600">RANK</span>
+                </span>
+              </div>
+              <span className="text-[9px] uppercase tracking-[3px] text-muted-foreground font-semibold">
                 Cinema Hub
               </span>
             </div>
           </Link>
 
-          {/* DESKTOP NAVIGATION */}
-          <NavigationMenu className="hidden lg:flex">
-            <NavigationMenuList className="gap-2">
-              <NavigationMenuItem>
+          {/* DESKTOP NAV LINKS */}
+          <nav className="hidden lg:flex items-center gap-1">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
                 <Link
-                  href="/"
-                  className="text-sm font-medium text-white transition hover:text-red-500"
+                  key={link.label}
+                  href={link.href}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                    isActive
+                      ? "text-red-600 dark:text-red-500 bg-red-500/10"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                  }`}
                 >
-                  Home
+                  {link.label}
                 </Link>
-              </NavigationMenuItem>
+              );
+            })}
 
-              <NavigationMenuItem>
-                <Link
-                  href="/movies"
-                  className="text-sm font-medium text-white transition hover:text-red-500"
-                >
-                  Movies
-                </Link>
-              </NavigationMenuItem>
+            {/* GENRES DROPDOWN */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/60 outline-none transition">
+                <span>Genres</span>
+                <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+              </DropdownMenuTrigger>
 
-              <NavigationMenuItem>
-                <Link
-                  href="/top-rated"
-                  className="text-sm font-medium text-white transition hover:text-red-500"
-                >
-                  Top Rated
-                </Link>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-white outline-none transition hover:text-red-500">
-                    Genres
-                    <ChevronDown className="h-4 w-4" />
-                  </DropdownMenuTrigger>
-
-                  <DropdownMenuContent className="border-white/10 bg-zinc-950 text-white">
-                    <DropdownMenuItem>Action</DropdownMenuItem>
-                    <DropdownMenuItem>Drama</DropdownMenuItem>
-                    <DropdownMenuItem>Comedy</DropdownMenuItem>
-                    <DropdownMenuItem>Sci-Fi</DropdownMenuItem>
-                    <DropdownMenuItem>Thriller</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+              <DropdownMenuContent
+                align="start"
+                className="w-56 p-1.5 border-border bg-popover text-popover-foreground shadow-xl rounded-xl"
+              >
+                <DropdownMenuLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground px-2 py-1">
+                  Popular Categories
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-border" />
+                {GENRES_LIST.map((genre) => {
+                  const Icon = genre.icon;
+                  return (
+                    <DropdownMenuItem
+                      key={genre.name}
+                      asChild
+                      className="cursor-pointer rounded-lg px-2.5 py-2 hover:bg-accent focus:bg-accent"
+                    >
+                      <Link
+                        href={`/movies?genre=${encodeURIComponent(genre.name)}`}
+                        className="flex items-center justify-between text-xs font-medium w-full"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Icon className={`h-3.5 w-3.5 ${genre.color}`} />
+                          <span>{genre.name}</span>
+                        </div>
+                        <span className="text-[10px] text-muted-foreground">Catalog</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </nav>
         </div>
 
-        {/* SEARCH BAR */}
-        <div className="hidden w-[35%] lg:flex">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-
-            <Input
-              placeholder="Search movies, actors, directors..."
-              className="border-white/10 bg-zinc-900 pl-10 text-white placeholder:text-zinc-500 focus-visible:ring-red-500"
-            />
-          </div>
+        {/* CENTER: AUTOCOMPLETE SEARCH BAR */}
+        <div className="hidden md:flex flex-1 max-w-md mx-2">
+          <MovieAutocompleteSearch placeholder="Search movies, directors, genres..." />
         </div>
 
-        {/* RIGHT SIDE */}
+        {/* RIGHT: CONTROLS & AUTH */}
         <div className="flex items-center gap-2">
           {/* THEME TOGGLE */}
           <ModeToggle />
 
-          {/* WISHLIST */}
+          {/* QUICK MOVIES SHORTCUT */}
           <Button
+            asChild
             variant="ghost"
             size="icon"
-            className="hidden text-white hover:bg-white/10 hover:text-red-500 md:flex"
+            className="hidden sm:flex text-muted-foreground hover:text-red-600 hover:bg-muted/60 rounded-xl"
+            title="Explore Movies"
           >
-            <Heart className="h-5 w-5" />
+            <Link href="/movies">
+              <Film className="h-4 w-4" />
+            </Link>
           </Button>
 
+          {/* WISHLIST SHORTCUT */}
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:text-amber-500 hover:bg-muted/60 rounded-xl"
+            title="My Wishlist"
+          >
+            <Link href="/wishlist">
+              <Bookmark className="h-4 w-4" />
+            </Link>
+          </Button>
+
+          {/* AUTH SECTION */}
           {isLoading ? (
-            <div className="hidden h-10 w-10 animate-pulse rounded-full bg-zinc-800 md:flex" />
+            <div className="h-9 w-9 animate-pulse rounded-full bg-muted" />
           ) : user ? (
-            /* PROFILE DROPDOWN */
+            /* LOGGED-IN PROFILE DROPDOWN */
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="hidden h-10 w-10 rounded-full transition hover:opacity-80 md:flex">
-                  <Avatar className="h-10 w-10">
+                <button
+                  className="flex h-9 w-9 items-center justify-center rounded-full ring-2 ring-border hover:ring-red-500/50 transition outline-none"
+                  aria-label="User menu"
+                >
+                  <Avatar className="h-9 w-9">
                     <AvatarImage src={user.image ?? undefined} alt={user.name} />
-                    <AvatarFallback className="bg-zinc-800 text-sm font-bold text-white">
+                    <AvatarFallback className="bg-red-600 text-xs font-bold text-white">
                       {user.name?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -175,98 +219,216 @@ export default function Navbar() {
 
               <DropdownMenuContent
                 align="end"
-                className="w-56 border-white/10 bg-zinc-950 text-white"
+                className="w-56 p-1.5 border-border bg-popover text-popover-foreground shadow-2xl rounded-xl"
               >
-                <DropdownMenuLabel className="font-normal">
-                  <p className="text-sm font-medium text-white">{user.name}</p>
-                  <p className="text-xs text-zinc-400">{user.email}</p>
+                <DropdownMenuLabel className="p-2 font-normal">
+                  <p className="text-xs font-bold text-foreground">{user.name}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{user.email}</p>
+                  <span className="inline-block mt-1 text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded bg-red-500/10 text-red-600 dark:text-red-400">
+                    {user.role}
+                  </span>
                 </DropdownMenuLabel>
 
-                <DropdownMenuSeparator className="bg-white/10" />
+                <DropdownMenuSeparator className="bg-border" />
 
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem asChild className="rounded-lg text-xs font-medium cursor-pointer">
                   <Link
                     href={getDashboardPath(user.role)}
-                    className="flex cursor-pointer items-center gap-2"
+                    className="flex items-center gap-2"
                   >
-                    <LayoutDashboard className="h-4 w-4" />
+                    <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
                     Dashboard
                   </Link>
                 </DropdownMenuItem>
 
-                <DropdownMenuSeparator className="bg-white/10" />
+                <DropdownMenuItem asChild className="rounded-lg text-xs font-medium cursor-pointer">
+                  <Link href="/movies" className="flex items-center gap-2">
+                    <Clapperboard className="h-4 w-4 text-muted-foreground" />
+                    Cinema Catalog
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem asChild className="rounded-lg text-xs font-medium cursor-pointer">
+                  <Link href="/wishlist" className="flex items-center gap-2">
+                    <Bookmark className="h-4 w-4 text-amber-500" />
+                    My Wishlist
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator className="bg-border" />
 
                 <DropdownMenuItem
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="flex cursor-pointer items-center gap-2 text-red-500 focus:text-red-500"
+                  className="rounded-lg text-xs font-medium cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 focus:bg-red-500/10"
                 >
-                  <LogOut className="h-4 w-4" />
-                  {isLoggingOut ? "Logging out…" : "Log out"}
+                  <LogOut className="h-4 w-4 mr-2" />
+                  {isLoggingOut ? "Logging out..." : "Log out"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            /* LOGIN / SIGNUP */
-            <>
-              <Link href="/login">
-                <Button className="hidden rounded-xl bg-red-600 text-white hover:bg-red-700 md:flex">
-                  Login
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button className="hidden rounded-xl bg-red-600 text-white hover:bg-red-700 md:flex">
-                  SignUp
-                </Button>
-              </Link>
-            </>
+            /* GUEST AUTH BUTTONS: Sign In (ghost) + Get Started (primary) */
+            <div className="flex items-center gap-1.5">
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="text-xs font-semibold text-muted-foreground hover:text-foreground h-9 px-3 rounded-xl"
+              >
+                <Link href="/login">Sign In</Link>
+              </Button>
+
+              <Button
+                asChild
+                size="sm"
+                className="text-xs font-semibold bg-red-600 hover:bg-red-700 text-white h-9 px-3.5 rounded-xl shadow-md shadow-red-600/25 transition-transform hover:scale-[1.02]"
+              >
+                <Link href="/register">Get Started</Link>
+              </Button>
+            </div>
           )}
 
-          {/* MOBILE MENU */}
-          <Sheet>
+          {/* MOBILE HAMBURGER MENU */}
+          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white hover:bg-white/10 lg:hidden"
+                className="lg:hidden text-muted-foreground hover:text-foreground rounded-xl"
+                aria-label="Open mobile menu"
               >
-                <Menu className="h-6 w-6" />
+                <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
 
             <SheetContent
               side="left"
-              className="border-white/10 bg-black text-white"
+              className="w-80 p-6 border-border bg-background text-foreground flex flex-col justify-between"
             >
-              <div className="mt-8 flex flex-col gap-6 mx-5">
-                <Link href="/">Home</Link>
-                <Link href="/movies">Movies</Link>
-                <Link href="/top-rated">Top Rated</Link>
-                <Link href="/genres">Genres</Link>
+              <div className="space-y-6">
+                <SheetHeader className="text-left p-0">
+                  <SheetTitle className="flex items-center gap-2 text-foreground">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-600 text-white">
+                      <Film className="h-4 w-4" />
+                    </div>
+                    <span className="text-base font-black">FILMRANK</span>
+                  </SheetTitle>
+                </SheetHeader>
 
-                <div className="pt-4">
-                  <Input
-                    placeholder="Search..."
-                    className="border-white/10 bg-zinc-900"
+                {/* Mobile Autocomplete Search */}
+                <div className="relative">
+                  <MovieAutocompleteSearch
+                    placeholder="Search catalog..."
+                    onItemSelect={() => setIsMobileMenuOpen(false)}
                   />
                 </div>
 
-                {user ? (
-                  <>
-                    <Link href={getDashboardPath(user.role)}>Dashboard</Link>
-                    <button
-                      onClick={handleLogout}
-                      disabled={isLoggingOut}
-                      className="text-left text-red-500"
+                {/* Mobile Nav Links */}
+                <div className="flex flex-col space-y-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                    Navigation
+                  </span>
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.label}
+                      href={link.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center px-3 py-2 rounded-lg text-sm font-medium hover:bg-muted transition"
                     >
-                      {isLoggingOut ? "Logging out…" : "Log out"}
-                    </button>
-                  </>
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Mobile Genres */}
+                <div className="flex flex-col space-y-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                    Top Genres
+                  </span>
+                  <div className="grid grid-cols-2 gap-1">
+                    {GENRES_LIST.map((g) => (
+                      <Link
+                        key={g.name}
+                        href={`/movies?genre=${encodeURIComponent(g.name)}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="px-2.5 py-1.5 text-xs rounded-lg bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground font-medium transition"
+                      >
+                        {g.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Mobile Auth & Footer */}
+              <div className="pt-6 border-t border-border space-y-3">
+                {user ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2.5">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-red-600 text-xs text-white font-bold">
+                          {user.name?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="overflow-hidden">
+                        <div className="text-xs font-bold truncate">{user.name}</div>
+                        <div className="text-[10px] text-muted-foreground truncate">{user.email}</div>
+                      </div>
+                    </div>
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-xs rounded-xl"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Link href={getDashboardPath(user.role)}>Dashboard</Link>
+                    </Button>
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-xs rounded-xl flex items-center justify-center gap-1.5"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Link href="/wishlist">
+                        <Bookmark className="h-3.5 w-3.5 text-amber-500" />
+                        My Wishlist
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="w-full text-xs rounded-xl"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        handleLogout();
+                      }}
+                    >
+                      Log out
+                    </Button>
+                  </div>
                 ) : (
-                  <>
-                    <Link href="/login">Login</Link>
-                    <Link href="/register">Sign up</Link>
-                  </>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="text-xs rounded-xl"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Link href="/login">Sign In</Link>
+                    </Button>
+                    <Button
+                      asChild
+                      size="sm"
+                      className="text-xs rounded-xl bg-red-600 hover:bg-red-700 text-white"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Link href="/register">Sign Up</Link>
+                    </Button>
+                  </div>
                 )}
               </div>
             </SheetContent>

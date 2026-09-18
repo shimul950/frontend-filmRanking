@@ -1,64 +1,55 @@
-import React from "react";
+import { Metadata } from "next";
+import { getMovies } from "./movies/_action";
+import { IMovie } from "@/src/types/movie.types";
+import { HomeHeroBanner } from "@/components/modules/home/HomeHeroBanner";
+import { HomeStatsBanner } from "@/components/modules/home/HomeStatsBanner";
+import { HomeMovieCarousel } from "@/components/modules/home/HomeMovieCarousel";
+import { HomeTopRankedLeaderboard } from "@/components/modules/home/HomeTopRankedLeaderboard";
+import { HomeGenreExplorer } from "@/components/modules/home/HomeGenreExplorer";
+import { HomeCommunityReviews } from "@/components/modules/home/HomeCommunityReviews";
 
-
- const banners = [
-  {
-    id: "1",
-    title: "Dune: Part Two",
+export const metadata: Metadata = {
+    title: "FILMRANK | Modern Movie Rating & Cinema Directory",
     description:
-      "Paul Atreides unites with the Fremen while seeking revenge against those who destroyed his family.",
-    imageUrl:
-      "https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s5hj0PX.jpg",
-    genre: "Sci-Fi",
-    rating: 8.9,
-    releaseYear: 2024,
-  },
+        "Discover top-rated cinematic masterpieces, watch official trailers, read community critic reviews, and track your favorite movies.",
+};
 
-  {
-    id: "2",
-    title: "The Batman",
-    description:
-      "Batman ventures into Gotham City's underworld when a sadistic killer leaves behind clues.",
-    imageUrl:
-      "https://image.tmdb.org/t/p/original/b0PlSFdDwbyK0cf5RxwDpaOJQvQ.jpg",
-    genre: "Action",
-    rating: 8.2,
-    releaseYear: 2022,
-  },
+export const dynamic = "force-dynamic";
 
-  {
-    id: "3",
-    title: "Interstellar",
-    description:
-      "A team of explorers travel through a wormhole in space in an attempt to save humanity.",
-    imageUrl:
-      "https://image.tmdb.org/t/p/original/rAiYTfKGqDCRIIqo664sY9XZIvQ.jpg",
-    genre: "Sci-Fi",
-    rating: 8.7,
-    releaseYear: 2014,
-  },
+export default async function HomePage() {
+    let movies: IMovie[] = [];
 
-  {
-    id: "4",
-    title: "John Wick 4",
-    description:
-      "John Wick uncovers a path to defeating The High Table, but powerful enemies stand in his way.",
-    imageUrl:
-      "https://image.tmdb.org/t/p/original/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg",
-    genre: "Action",
-    rating: 8.0,
-    releaseYear: 2023,
-  },
-];
+    try {
+        const rawRes = await getMovies({ limit: 100 });
+        const payload = rawRes?.data;
+        if (Array.isArray(payload)) {
+            movies = payload;
+        } else if (payload && "data" in payload && Array.isArray((payload as { data: IMovie[] }).data)) {
+            movies = (payload as { data: IMovie[] }).data;
+        }
+    } catch {
+        movies = [];
+    }
 
-export default function commonRoutePage() {
-  return (
-    
-    <div className="">
-      
-    </div>
-  )
+    return (
+        <main className="min-h-screen space-y-2 pb-12">
+            {/* 1. Hero Banner Slider */}
+            <HomeHeroBanner databaseMovies={movies} />
+
+            {/* 2. Platform Stats Strip */}
+            <HomeStatsBanner movieCount={movies.length} />
+
+            {/* 3. Curated Movie Shelves (Trending / Top-Rated / Recent / Free) */}
+            <HomeMovieCarousel movies={movies} />
+
+            {/* 4. Billboard Top 10 Ranked Movies */}
+            <HomeTopRankedLeaderboard movies={movies} />
+
+            {/* 5. Mood / Genre Explorer */}
+            <HomeGenreExplorer />
+
+            {/* 6. Critic & Community Reviews Showcase */}
+            <HomeCommunityReviews />
+        </main>
+    );
 }
-
-
-

@@ -1,3 +1,10 @@
+import { FilmPageLoader } from "@/components/shared/FilmPageLoader";
+
 export default function PaymentSuccessLoading() {
-  return <p>loading payment success...</p>
+  return (
+    <FilmPageLoader
+      text="Verifying payment..."
+      subtext="Confirming your transaction & activating membership"
+    />
+  );
 }

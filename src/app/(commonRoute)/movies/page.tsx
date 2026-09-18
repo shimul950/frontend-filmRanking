@@ -1,24 +1,35 @@
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Suspense } from "react";
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import { getMovies, getPublicGenresAction } from "./_action";
+import MoviesList from "@/components/modules/movies/moviesList";
+import { Loader2 } from "lucide-react";
 
-import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
-import { getMovies } from './_action';
-import MoviesList from '@/components/modules/movies/moviesList';
+export const dynamic = "force-dynamic";
 
+function MoviesLoadingFallback() {
+    return (
+        <div className="container mx-auto px-4 py-16 max-w-7xl flex flex-col items-center justify-center gap-3 text-muted-foreground">
+            <Loader2 className="h-8 w-8 animate-spin text-red-600 dark:text-red-500" />
+            <span className="text-xs font-semibold">Loading movie catalog...</span>
+        </div>
+    );
+}
 
 export default async function moviesPage() {
-    const queryClient = new QueryClient()
+    const queryClient = new QueryClient();
 
-  await queryClient.prefetchQuery({
-    queryKey: ['movies'],
-    queryFn: getMovies,
-  })
+    await queryClient.prefetchQuery({
+        queryKey: ["movies"],
+        queryFn: () => getMovies({ limit: 100 }),
+    });
 
-   return (
-    // Neat! Serialization is now as easy as passing props.
-    // HydrationBoundary is a Client Component, so hydration will happen there.
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <MoviesList/>
-    </HydrationBoundary>
-  )
+    return (
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <Suspense fallback={<MoviesLoadingFallback />}>
+                <MoviesList />
+            </Suspense>
+        </HydrationBoundary>
+    );
 }
+

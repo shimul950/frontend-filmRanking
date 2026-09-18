@@ -1,3 +1,10 @@
+import { FilmPageLoader } from "@/components/shared/FilmPageLoader";
+
 export default function ChangePasswordLoading() {
-  return <p>changing password...</p>
+  return (
+    <FilmPageLoader
+      text="Loading security settings..."
+      subtext="Preparing password management"
+    />
+  );
 }

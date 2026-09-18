@@ -1,3 +1,5 @@
-export default function ReviewsLoading() {
-  return <p>loading reviews...</p>
+import { DashboardSkeleton } from "@/components/shared/DashboardSkeleton";
+
+export default function UserReviewsLoading() {
+  return <DashboardSkeleton />;
 }

@@ -1,3 +1,5 @@
+import { DashboardSkeleton } from "@/components/shared/DashboardSkeleton";
+
 export default function CommonProtectedLayoutLoading() {
-  return <p>loading protected layout...</p>
+  return <DashboardSkeleton />;
 }

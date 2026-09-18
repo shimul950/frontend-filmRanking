@@ -1,3 +1,5 @@
+import { MovieDetailsSkeleton } from "@/components/modules/movies/MovieDetailsSkeleton";
+
 export default function MovieDetailsLoading() {
-  return <p>loading movie details...</p>
+  return <MovieDetailsSkeleton />;
 }

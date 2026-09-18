@@ -1,3 +1,5 @@
+import { MovieGridSkeleton } from "@/components/modules/movies/MovieGridSkeleton";
+
 export default function MoviesLoading() {
-  return <p>loading movies...</p>
+  return <MovieGridSkeleton cardCount={12} showFilters={true} />;
 }

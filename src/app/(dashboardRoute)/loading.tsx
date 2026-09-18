@@ -1,3 +1,5 @@
+import { DashboardSkeleton } from "@/components/shared/DashboardSkeleton";
+
 export default function DashboardRouteLoading() {
-  return <p>loading dashboard routes...</p>
+  return <DashboardSkeleton />;
 }

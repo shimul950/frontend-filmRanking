@@ -23,6 +23,22 @@ export interface ApiRequestOptions{
     headers?: Record<string, string>
 }
 
+function logHttpError(method: string, endpoint: string, error: unknown) {
+    if (axios.isAxiosError(error)) {
+        if (error.code === "ECONNREFUSED") {
+            console.error(
+                `[httpClient] ${method} ${endpoint} failed: Connection refused. Is the backend server running at ${API_BASE_URL}?`
+            );
+            return;
+        }
+        const status = error.response?.status;
+        const msg = (error.response?.data as { message?: string })?.message || error.message;
+        console.error(`[httpClient] ${method} ${endpoint} failed (${status ?? error.code}): ${msg}`);
+        return;
+    }
+    console.error(`[httpClient] ${method} ${endpoint} failed`, error);
+}
+
 const httpGet = async <TData>(endpoint: string, options?: ApiRequestOptions): Promise<ApiResponse<TData>> =>{
     try{
         const instance = axiosInstance()
@@ -32,7 +48,7 @@ const httpGet = async <TData>(endpoint: string, options?: ApiRequestOptions): Pr
         })
         return response.data
     }catch(error){
-        console.error(`GET request ${endpoint} failed`, error)
+        logHttpError("GET", endpoint, error)
         throw error
     }
 }
@@ -45,7 +61,7 @@ const httpPost = async <TData>(endpoint: string, data: unknown, options?: ApiReq
         })
         return response.data
     }catch(error){
-        console.error(`POST request ${endpoint} failed`, error)
+        logHttpError("POST", endpoint, error)
         throw error
     }
 }
@@ -58,7 +74,7 @@ const httpPut = async <TData>(endpoint: string, data: unknown, options?: ApiRequ
         })
         return response.data
     }catch(error){
-        console.error(`PUT request ${endpoint} failed`, error)
+        logHttpError("PUT", endpoint, error)
         throw error
     }
 }
@@ -70,7 +86,7 @@ const httpPatch = async<TData>(endpoint: string, data: unknown, options?: ApiReq
         })
         return response.data
     }catch(error){
-        console.error(`PATCH request ${endpoint} failed`, error)
+        logHttpError("PATCH", endpoint, error)
         throw error
     }
 }
@@ -82,7 +98,7 @@ const httpDELETE = async<TData>(endpoint: string, options?: ApiRequestOptions): 
         })
         return response.data
     }catch(error){
-        console.error(`DELETE request ${endpoint} failed`, error)
+        logHttpError("DELETE", endpoint, error)
         throw error
     }
 }
@@ -99,7 +115,7 @@ const httpPostRaw = async <TData>(endpoint: string, data: unknown, options?: Api
         })
         return response
     }catch(error){
-        console.error(`POST (raw) request ${endpoint} failed`, error)
+        logHttpError("POST (raw)", endpoint, error)
         throw error
     }
 }
@@ -112,7 +128,7 @@ const httpPatchRaw = async <TData>(endpoint: string, data: unknown, options?: Ap
         })
         return response
     }catch(error){
-        console.error(`PATCH (raw) request ${endpoint} failed`, error)
+        logHttpError("PATCH (raw)", endpoint, error)
         throw error
     }
 }

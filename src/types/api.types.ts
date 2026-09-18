@@ -13,6 +13,6 @@ export interface PaginationMeta{
 }
 
 export interface ApiErrorResponse {
-    success: boolean;
+    success: false;
     messsage: string;
 }

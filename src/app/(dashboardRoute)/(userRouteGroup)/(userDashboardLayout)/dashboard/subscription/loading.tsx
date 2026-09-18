@@ -1,3 +1,5 @@
-export default function SubscriptionLoading() {
-  return <p>loading subscription...</p>
+import { DashboardSkeleton } from "@/components/shared/DashboardSkeleton";
+
+export default function UserSubscriptionLoading() {
+  return <DashboardSkeleton />;
 }

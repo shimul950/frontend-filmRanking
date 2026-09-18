@@ -1,3 +1,5 @@
-export default function WatchListLoading() {
-  return <p>loading watch list...</p>
+import { MovieGridSkeleton } from "@/components/modules/movies/MovieGridSkeleton";
+
+export default function UserWatchlistLoading() {
+  return <MovieGridSkeleton cardCount={8} showFilters={false} />;
 }

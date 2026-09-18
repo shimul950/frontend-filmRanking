@@ -1,3 +1,5 @@
-export default function DashboardLoading() {
-  return <p>loading dashboard...</p>
+import { DashboardSkeleton } from "@/components/shared/DashboardSkeleton";
+
+export default function UserDashboardLoading() {
+  return <DashboardSkeleton />;
 }
