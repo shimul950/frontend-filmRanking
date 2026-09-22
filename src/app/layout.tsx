@@ -26,7 +26,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("antialiased", fontMono.variable, "font-sans", inter.variable)}
     >
-      <body>
+      <body className="min-h-screen bg-background text-foreground antialiased overflow-x-hidden flex flex-col selection:bg-red-500/20 selection:text-red-400">
         <NextTopLoader
           color="#e50914"
           initialPosition={0.08}

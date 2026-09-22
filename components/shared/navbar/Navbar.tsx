@@ -75,7 +75,9 @@ export default function Navbar() {
   const navLinks = [
     { label: "Home", href: "/" },
     { label: "Movies", href: "/movies" },
+    { label: "Web Series", href: "/web-series" },
     { label: "Top Rated", href: "/movies?sort=rating" },
+    { label: "Reviews", href: "/reviews" },
   ];
 
   return (

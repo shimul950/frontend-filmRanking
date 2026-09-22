@@ -4,40 +4,83 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star, MessageSquare, Quote, ArrowRight, Film, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { IReview } from "@/src/types/movie.types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export function HomeCommunityReviews() {
-    const featuredReviews = [
+interface HomeCommunityReviewsProps {
+    reviews?: IReview[];
+}
+
+export function HomeCommunityReviews({ reviews = [] }: HomeCommunityReviewsProps) {
+    const curatedFallbacks = [
         {
+            id: "fallback-1",
             author: "Elena Rostova",
             role: "Verified Critic",
             avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
             movieTitle: "Dune: Part Two",
+            mediaId: "",
             rating: 5,
             comment:
                 "Villeneuve has crafted an operatic triumph of sound and spectacle. The scale of the desert warfare combined with Zimmer's visceral score sets a new benchmark for modern science fiction.",
             date: "May 2026",
         },
         {
+            id: "fallback-2",
             author: "Marcus Vance",
             role: "Film Historian",
             avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
             movieTitle: "Oppenheimer",
+            mediaId: "",
             rating: 5,
             comment:
                 "Murphy's eyes carry the weight of an epoch. A relentless, three-hour chamber drama masquerading as an epic biographical thriller that refuses to let the viewer breathe.",
             date: "April 2026",
         },
         {
+            id: "fallback-3",
             author: "Sophia Chen",
             role: "Cinema Enthusiast",
             avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
             movieTitle: "Spider-Man: Across the Spider-Verse",
+            mediaId: "",
             rating: 5,
             comment:
                 "Every single frame is a museum-grade painting. The emotional core between Miles and Gwen grounds a multidimensional adventure of staggering visual audacity.",
             date: "April 2026",
         },
     ];
+
+    // Format dynamic reviews or fall back if empty
+    const displayReviews =
+        reviews && reviews.length > 0
+            ? reviews.slice(0, 3).map((r) => {
+                  const initials = r.user?.name
+                      ? r.user.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase()
+                            .slice(0, 2)
+                      : "C";
+
+                  return {
+                      id: r.id,
+                      author: r.user?.name || "Verified Critic",
+                      role: r.user?.role === "ADMIN" || r.user?.role === "SUPER_ADMIN" ? "Editorial Critic" : "Cinephile Critic",
+                      avatar: r.user?.image || null,
+                      initials,
+                      movieTitle: r.media?.title || "Featured Film",
+                      mediaId: r.mediaId,
+                      rating: r.rating || 5,
+                      comment: r.content,
+                      date: new Date(r.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          year: "numeric",
+                      }),
+                  };
+              })
+            : curatedFallbacks;
 
     return (
         <section className="container mx-auto px-4 py-12 max-w-7xl space-y-8">
@@ -53,7 +96,7 @@ export function HomeCommunityReviews() {
                 </div>
 
                 <Link
-                    href="/movies"
+                    href="/reviews"
                     className="text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1 transition"
                 >
                     <span>Read More Reviews</span>
@@ -63,12 +106,12 @@ export function HomeCommunityReviews() {
 
             {/* Review Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {featuredReviews.map((rev, idx) => (
+                {displayReviews.map((rev) => (
                     <div
-                        key={idx}
+                        key={rev.id}
                         className="relative flex flex-col justify-between p-6 rounded-2xl border border-border/80 bg-card/80 backdrop-blur-md shadow-sm space-y-4 hover:border-red-500/30 transition-all duration-300"
                     >
-                        <Quote className="h-8 w-8 text-muted-foreground/20 absolute top-4 right-4" />
+                        <Quote className="h-8 w-8 text-muted-foreground/20 absolute top-4 right-4 pointer-events-none" />
 
                         <div className="space-y-3">
                             <div className="flex items-center gap-1 text-amber-400">
@@ -77,24 +120,24 @@ export function HomeCommunityReviews() {
                                 ))}
                             </div>
 
-                            <p className="text-xs sm:text-sm text-foreground/90 italic leading-relaxed">
+                            <p className="text-xs sm:text-sm text-foreground/90 italic leading-relaxed line-clamp-4">
                                 "{rev.comment}"
                             </p>
                         </div>
 
                         <div className="pt-3 border-t border-border/60 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="relative h-9 w-9 rounded-full overflow-hidden bg-muted">
-                                    <Image
-                                        src={rev.avatar}
-                                        alt={rev.author}
-                                        fill
-                                        className="object-cover"
-                                        sizes="36px"
-                                    />
-                                </div>
+                                <Avatar className="h-9 w-9 rounded-full border border-border/60">
+                                    {rev.avatar ? (
+                                        <AvatarImage src={rev.avatar} alt={rev.author} className="object-cover" />
+                                    ) : null}
+                                    <AvatarFallback className="bg-red-600/20 text-red-500 font-bold text-xs">
+                                        {"initials" in rev ? rev.initials : rev.author.slice(0, 2)}
+                                    </AvatarFallback>
+                                </Avatar>
+
                                 <div>
-                                    <div className="text-xs font-bold text-foreground">{rev.author}</div>
+                                    <div className="text-xs font-bold text-foreground line-clamp-1">{rev.author}</div>
                                     <div className="text-[10px] text-muted-foreground flex items-center gap-1">
                                         <ShieldCheck className="h-3 w-3 text-emerald-500" />
                                         <span>{rev.role}</span>
@@ -102,9 +145,19 @@ export function HomeCommunityReviews() {
                                 </div>
                             </div>
 
-                            <span className="text-[11px] font-semibold text-red-600 dark:text-red-400">
-                                {rev.movieTitle}
-                            </span>
+                            {rev.mediaId ? (
+                                <Link
+                                    href={`/movies/${rev.mediaId}`}
+                                    className="text-[11px] font-semibold text-red-600 dark:text-red-400 hover:underline line-clamp-1 max-w-[120px] text-right"
+                                    title={rev.movieTitle}
+                                >
+                                    {rev.movieTitle}
+                                </Link>
+                            ) : (
+                                <span className="text-[11px] font-semibold text-red-600 dark:text-red-400 line-clamp-1 max-w-[120px] text-right">
+                                    {rev.movieTitle}
+                                </span>
+                            )}
                         </div>
                     </div>
                 ))}
@@ -141,7 +194,7 @@ export function HomeCommunityReviews() {
                             size="lg"
                             className="border-white/20 bg-black/40 text-white hover:bg-white/10 text-xs h-10 px-6 rounded-xl"
                         >
-                            <Link href="/movies">Explore All Movies</Link>
+                            <Link href="/reviews">Explore All Reviews</Link>
                         </Button>
                     </div>
                 </div>

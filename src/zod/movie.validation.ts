@@ -45,6 +45,12 @@ export const createMovieSchema = z.object({
     platformIds: z
         .array(z.string())
         .optional(),
+    castIds: z
+        .array(z.string())
+        .optional(),
+    directorIds: z
+        .array(z.string())
+        .optional(),
     posterUrl: z
         .string()
         .optional(),

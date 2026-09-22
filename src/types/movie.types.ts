@@ -42,6 +42,7 @@ export interface IComment {
     };
     parent?: IComment | null;
     replies?: IComment[];
+    review?: IReview;
 }
 
 export interface IReviewLike {
@@ -65,11 +66,16 @@ export interface IReview {
         name: string;
         email: string;
         image?: string | null;
+        role?: string;
     };
     media?: {
         id: string;
         title: string;
         posterUrl?: string | null;
+        releaseYear?: number;
+        duration?: number;
+        averageRating?: number;
+        reviewCount?: number;
     };
     tags?: IReviewTagRelation[];
     likes?: IReviewLike[];
@@ -83,6 +89,7 @@ export interface IReview {
 export interface IMovie {
     id: string;
     posterUrl?: string | null;
+    banner?: string | null;
     title: string;
     synopsis: string;
     releaseYear: number;
@@ -101,6 +108,8 @@ export interface IMovie {
     genres?: IMediaGenre[];
     platforms?: IMediaPlatform[];
     reviews?: IReview[];
+    casts?: import("./cast.types").IMediaCast[];
+    directors?: import("./director.types").IMediaDirector[];
 }
 
 export interface ILikeResult {

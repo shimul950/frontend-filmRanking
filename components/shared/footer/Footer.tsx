@@ -99,14 +99,7 @@ export function Footer() {
                             FilmRank is the premier social platform for cinema lovers. Discover movies, track what you watch, read authentic critic reviews, and rank your all-time favorites.
                         </p>
 
-                        <div className="pt-2 flex items-center gap-3 text-xs text-muted-foreground">
-                            <span className="inline-flex items-center gap-1 text-emerald-500 font-semibold">
-                                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                                Catalog Live & Operational
-                            </span>
-                            <span>•</span>
-                            <span>Powered by TMDB API</span>
-                        </div>
+
                     </div>
 
                     {/* Navigation Columns */}

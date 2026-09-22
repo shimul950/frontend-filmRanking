@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { IMovie } from "@/src/types/movie.types";
+import { IBanner } from "@/src/types/banner.types";
 import { MovieTrailerModal } from "@/components/modules/dashboard/movie/MovieTrailerModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -40,8 +41,8 @@ const DEFAULT_BANNER_SLIDES: IBannerSlide[] = [
         title: "Dune: Part Two",
         synopsis:
             "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the known universe, he endeavors to prevent a terrible future only he can foresee.",
-        backdropUrl: "https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s5hj0PX.jpg",
-        posterUrl: "https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg",
+        backdropUrl: "https://ik.imagekit.io/vrdep7b7i/banners/dune_part_two_backdrop.jpg",
+        posterUrl: "https://ik.imagekit.io/vrdep7b7i/banners/dune_part_two_poster.jpg",
         rating: 4.9,
         releaseYear: 2024,
         duration: 166,
@@ -55,8 +56,8 @@ const DEFAULT_BANNER_SLIDES: IBannerSlide[] = [
         title: "Oppenheimer",
         synopsis:
             "The gripping story of American scientist J. Robert Oppenheimer and his profound role in the development of the atomic bomb during World War II, exploring the moral and geopolitical aftermath of Trinity.",
-        backdropUrl: "https://image.tmdb.org/t/p/original/nb3xI8XI3w4pMVZ38VijbsyBqP4.jpg",
-        posterUrl: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+        backdropUrl: "https://ik.imagekit.io/vrdep7b7i/banners/oppenheimer_backdrop.jpg",
+        posterUrl: "https://ik.imagekit.io/vrdep7b7i/banners/oppenheimer_poster.jpg",
         rating: 4.8,
         releaseYear: 2023,
         duration: 180,
@@ -70,8 +71,8 @@ const DEFAULT_BANNER_SLIDES: IBannerSlide[] = [
         title: "Interstellar",
         synopsis:
             "A team of explorers undertake the most important mission in human history; traveling beyond this galaxy to discover whether mankind has a future among the stars in a stunning cosmic odyssey.",
-        backdropUrl: "https://image.tmdb.org/t/p/original/rAiYTfKGqDCRIIqo664sY9XZIvQ.jpg",
-        posterUrl: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+        backdropUrl: "https://ik.imagekit.io/vrdep7b7i/banners/interstellar_backdrop.jpg",
+        posterUrl: "https://ik.imagekit.io/vrdep7b7i/banners/interstellar_poster.jpg",
         rating: 4.9,
         releaseYear: 2014,
         duration: 169,
@@ -82,26 +83,26 @@ const DEFAULT_BANNER_SLIDES: IBannerSlide[] = [
     },
     {
         id: "banner-4",
-        title: "The Dark Knight",
+        title: "Gladiator II",
         synopsis:
-            "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.",
-        backdropUrl: "https://image.tmdb.org/t/p/original/nMKdUUepR0i5zn0y1T4CsSB5chy.jpg",
-        posterUrl: "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
-        rating: 5.0,
-        releaseYear: 2008,
-        duration: 152,
-        genre: "Action / Crime",
-        pricing: "FREE",
-        youtubeLink: "https://www.youtube.com/watch?v=EXeTwQWrcwY",
-        director: "Christopher Nolan",
+            "Years after witnessing the death of the revered hero Maximus at the hands of his uncle, Lucius must enter the Colosseum after his home is conquered by tyrannical Emperors who now lead Rome.",
+        backdropUrl: "https://image.tmdb.org/t/p/original/b85bJ9jQ3p6SjFfR92K9Uu8H1jN.jpg",
+        posterUrl: "https://ik.imagekit.io/vrdep7b7i/banners/gladiator_ii_poster.jpg",
+        rating: 4.8,
+        releaseYear: 2024,
+        duration: 148,
+        genre: "Action / Adventure",
+        pricing: "PREMIUM",
+        youtubeLink: "https://www.youtube.com/watch?v=4rgYUipGJNo",
+        director: "Ridley Scott",
     },
     {
         id: "banner-5",
         title: "Spider-Man: Across the Spider-Verse",
         synopsis:
             "Miles Morales catapults across the Multiverse, where he encounters a team of Spider-People charged with protecting its very existence. A visual masterpiece of contemporary animation.",
-        backdropUrl: "https://image.tmdb.org/t/p/original/4HodYYKEIsGOdinkGi2Ucz6X9i0.jpg",
-        posterUrl: "https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg",
+        backdropUrl: "https://ik.imagekit.io/vrdep7b7i/banners/spiderman_spiderverse_backdrop.jpg",
+        posterUrl: "https://ik.imagekit.io/vrdep7b7i/banners/spiderman_spiderverse_poster.jpg",
         rating: 4.8,
         releaseYear: 2023,
         duration: 140,
@@ -114,17 +115,40 @@ const DEFAULT_BANNER_SLIDES: IBannerSlide[] = [
 
 interface HomeHeroBannerProps {
     databaseMovies?: IMovie[];
+    initialBanners?: IBanner[];
 }
 
-export function HomeHeroBanner({ databaseMovies = [] }: HomeHeroBannerProps) {
+export function HomeHeroBanner({
+    databaseMovies = [],
+    initialBanners = [],
+}: HomeHeroBannerProps) {
     const [currentIdx, setCurrentIdx] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
     const [activeTrailer, setActiveTrailer] = useState<{ title: string; url: string } | null>(null);
 
-    // Merge database movies if any have trailers & posters, or use curated cinematic slides
-    const slides: IBannerSlide[] = DEFAULT_BANNER_SLIDES;
+    // Convert active database banners into slides
+    const activeDatabaseBanners: IBannerSlide[] = (initialBanners || [])
+        .filter((b) => b.isActive)
+        .map((b) => ({
+            id: b.id,
+            title: b.title,
+            synopsis: b.synopsis || "",
+            backdropUrl: b.imageUrl,
+            posterUrl: b.posterUrl || b.imageUrl,
+            rating: b.rating ?? 4.8,
+            releaseYear: b.releaseYear ?? 2024,
+            duration: b.duration ?? 120,
+            genre: b.genre || "Featured Cinema",
+            pricing: b.pricing || "PREMIUM",
+            youtubeLink: b.youtubeLink || "",
+            director: b.director || "Cinema Feature",
+        }));
 
-    const currentSlide = slides[currentIdx];
+    // If active custom banners exist, use them; otherwise fallback to curated defaults
+    const slides: IBannerSlide[] =
+        activeDatabaseBanners.length > 0 ? activeDatabaseBanners : DEFAULT_BANNER_SLIDES;
+
+    const currentSlide = slides[currentIdx] || slides[0];
 
     const nextSlide = useCallback(() => {
         setCurrentIdx((prev) => (prev + 1) % slides.length);
@@ -210,7 +234,7 @@ export function HomeHeroBanner({ databaseMovies = [] }: HomeHeroBannerProps) {
                     </div>
 
                     {/* Movie Title */}
-                    <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight drop-shadow-md leading-[1.08]">
+                    <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight drop-shadow-md leading-[1.08] break-words line-clamp-2 sm:line-clamp-none">
                         {currentSlide.title}
                     </h1>
 
@@ -222,12 +246,12 @@ export function HomeHeroBanner({ databaseMovies = [] }: HomeHeroBannerProps) {
                     </div>
 
                     {/* Synopsis */}
-                    <p className="text-xs sm:text-sm text-zinc-200/90 line-clamp-3 leading-relaxed max-w-xl drop-shadow">
+                    <p className="text-xs sm:text-sm text-zinc-200/90 line-clamp-2 sm:line-clamp-3 leading-relaxed max-w-xl drop-shadow">
                         {currentSlide.synopsis}
                     </p>
 
                     {/* Interactive Action Buttons */}
-                    <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-2">
                         <Button
                             size="lg"
                             onClick={() =>
@@ -236,7 +260,7 @@ export function HomeHeroBanner({ databaseMovies = [] }: HomeHeroBannerProps) {
                                     url: currentSlide.youtubeLink,
                                 })
                             }
-                            className="bg-red-600 hover:bg-red-700 text-white font-bold text-sm h-11 px-5 rounded-xl shadow-xl shadow-red-600/40 transition-transform hover:scale-105"
+                            className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm h-10 sm:h-11 px-4 sm:px-5 rounded-xl shadow-xl shadow-red-600/40 transition-transform hover:scale-105"
                         >
                             <Play className="h-4 w-4 fill-current mr-2" />
                             Watch Official Trailer
@@ -246,7 +270,7 @@ export function HomeHeroBanner({ databaseMovies = [] }: HomeHeroBannerProps) {
                             asChild
                             variant="outline"
                             size="lg"
-                            className="border-white/20 bg-black/40 hover:bg-white/10 text-white text-sm h-11 px-5 rounded-xl backdrop-blur-md"
+                            className="border-white/20 bg-black/40 hover:bg-white/10 text-white text-xs sm:text-sm h-10 sm:h-11 px-4 sm:px-5 rounded-xl backdrop-blur-md"
                         >
                             <Link href="/movies">
                                 <Clapperboard className="h-4 w-4 mr-2" />
@@ -259,7 +283,7 @@ export function HomeHeroBanner({ databaseMovies = [] }: HomeHeroBannerProps) {
                 {/* Bottom Navigation Strip / Slide Thumbnails */}
                 <div className="mt-8 flex items-center justify-between gap-4">
                     {/* Thumbnail cards for each slide */}
-                    <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full scrollbar-none">
                         {slides.map((slide, idx) => (
                             <button
                                 key={slide.id}

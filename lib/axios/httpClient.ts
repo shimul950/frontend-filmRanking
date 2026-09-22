@@ -32,11 +32,15 @@ function logHttpError(method: string, endpoint: string, error: unknown) {
             return;
         }
         const status = error.response?.status;
+        if (status === 404 && endpoint.includes("banner")) {
+            // Optional banner endpoint - suppress noisy console logging
+            return;
+        }
         const msg = (error.response?.data as { message?: string })?.message || error.message;
-        console.error(`[httpClient] ${method} ${endpoint} failed (${status ?? error.code}): ${msg}`);
+        console.log(`[httpClient] ${method} ${endpoint} failed (${status ?? error.code}): ${msg}`);
         return;
     }
-    console.error(`[httpClient] ${method} ${endpoint} failed`, error);
+    console.log(`[httpClient] ${method} ${endpoint} failed`, error);
 }
 
 const httpGet = async <TData>(endpoint: string, options?: ApiRequestOptions): Promise<ApiResponse<TData>> =>{

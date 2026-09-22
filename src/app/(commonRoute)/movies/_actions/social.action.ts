@@ -22,7 +22,11 @@ export async function getMovieReviewsAction(mediaId: string): Promise<IReview[]>
 
     try {
         const response = await httpClient.get<{ data: IReview[] } | IReview[]>("/review", {
-            params: { mediaId },
+            params: {
+                mediaId,
+                status: "APPROVED",
+                include: "user,media,tags,likes,comments",
+            },
         });
 
         if (!response.data) return [];

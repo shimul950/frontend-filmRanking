@@ -42,6 +42,7 @@ import {
     Loader2,
     ExternalLink,
     AlertTriangle,
+    Edit3,
 } from "lucide-react";
 
 interface MovieDetailsDialogProps {
@@ -49,6 +50,7 @@ interface MovieDetailsDialogProps {
     onClose: () => void;
     movie: IMovie | null;
     onMovieUpdated?: () => void;
+    onEditMovie?: (movie: IMovie) => void;
 }
 
 export function MovieDetailsDialog({
@@ -56,6 +58,7 @@ export function MovieDetailsDialog({
     onClose,
     movie,
     onMovieUpdated,
+    onEditMovie,
 }: MovieDetailsDialogProps) {
     const [activeTab, setActiveTab] = useState("overview");
 
@@ -216,7 +219,7 @@ export function MovieDetailsDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto border-white/10 bg-zinc-950 text-white shadow-2xl p-0">
+            <DialogContent className="sm:max-w-5xl lg:max-w-6xl xl:max-w-7xl max-h-[94vh] overflow-y-auto border-white/10 bg-zinc-950 text-white shadow-2xl p-0">
                 {/* Header Banner */}
                 <div className="relative border-b border-white/10 bg-zinc-900/90 p-6">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -269,24 +272,41 @@ export function MovieDetailsDialog({
                             </div>
                         </div>
 
-                        {movie.youtubeLink && (
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                asChild
-                                className="border-red-500/30 bg-red-600/10 text-red-400 hover:bg-red-600 hover:text-white rounded-xl text-xs gap-1.5 self-end sm:self-center"
-                            >
-                                <a
-                                    href={movie.youtubeLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                        <div className="flex flex-wrap items-center gap-2 self-end sm:self-center">
+                            {onEditMovie && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                        onClose();
+                                        onEditMovie(movie);
+                                    }}
+                                    className="border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-600 hover:text-white rounded-xl text-xs gap-1.5 shadow-sm"
                                 >
-                                    <Play className="h-3 w-3 fill-current" />
-                                    <span>Open YouTube Trailer</span>
-                                    <ExternalLink className="h-3 w-3" />
-                                </a>
-                            </Button>
-                        )}
+                                    <Edit3 className="h-3.5 w-3.5" />
+                                    <span>Edit Movie</span>
+                                </Button>
+                            )}
+
+                            {movie.youtubeLink && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    asChild
+                                    className="border-red-500/30 bg-red-600/10 text-red-400 hover:bg-red-600 hover:text-white rounded-xl text-xs gap-1.5"
+                                >
+                                    <a
+                                        href={movie.youtubeLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <Play className="h-3 w-3 fill-current" />
+                                        <span>YouTube Trailer</span>
+                                        <ExternalLink className="h-3 w-3" />
+                                    </a>
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </div>
 

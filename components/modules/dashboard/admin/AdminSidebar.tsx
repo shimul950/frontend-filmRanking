@@ -4,11 +4,15 @@ import {
     LayoutDashboard,
     Users,
     Film,
+    UserCheck,
+    Video,
+    Tv,
     Tags,
     Tag,
     MonitorPlay,
     MessageSquareText,
     ArrowLeftRight,
+    SlidersHorizontal,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -28,6 +32,10 @@ import { useAuth } from "@/hooks/useAuth"
 
 const managementNav = [
     { title: "Movie Management", url: "/admin/dashboard/movie-management", icon: Film },
+    { title: "Banner Management", url: "/admin/dashboard/banner-management", icon: SlidersHorizontal },
+    { title: "Cast Management", url: "/admin/dashboard/cast-management", icon: UserCheck },
+    { title: "Director Management", url: "/admin/dashboard/director-management", icon: Video },
+    { title: "Web Series Management", url: "/admin/dashboard/web-series-management", icon: Tv },
     { title: "Genre Management", url: "/admin/dashboard/genre-management", icon: Tags },
     { title: "Platform Management", url: "/admin/dashboard/platform-management", icon: MonitorPlay },
     { title: "Tag Management", url: "/admin/dashboard/tag-management", icon: Tag },
@@ -44,8 +52,8 @@ export function AdminSidebar() {
     return (
         <Sidebar collapsible="icon">
             <SidebarHeader>
-                <Link href="/admin/dashboard" className="flex items-center gap-2 px-2 py-1.5">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-600">
+                <Link href="/home" className="flex items-center gap-2 px-2 py-1.5" title="Go to Cinema Home">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-600 transition-transform hover:scale-105">
                         <Film className="h-4 w-4 text-white" />
                     </div>
                     <span className="text-sm font-black tracking-wide group-data-[collapsible=icon]:hidden">

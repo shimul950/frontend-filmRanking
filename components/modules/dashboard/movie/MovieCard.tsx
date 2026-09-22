@@ -47,7 +47,7 @@ export function MovieCard({
 
     return (
         <>
-            <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/60 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-red-500/40 hover:shadow-xl hover:shadow-red-950/20">
+            <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/60 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-red-500/40 hover:shadow-xl hover:shadow-red-950/20">
                 {/* Poster & Backdrop Banner */}
                 <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-950">
                     {movie.posterUrl && !imageError ? (
@@ -73,7 +73,7 @@ export function MovieCard({
                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-black/60" />
 
                     {/* Top badging */}
-                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-20">
                         <div className="flex items-center gap-1.5 pointer-events-auto">
                             <Badge
                                 variant="outline"
@@ -143,7 +143,7 @@ export function MovieCard({
                         <button
                             type="button"
                             onClick={() => setShowTrailer(true)}
-                            className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]"
+                            className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]"
                             aria-label={`Watch ${movie.title} trailer`}
                         >
                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600 text-white shadow-lg shadow-red-600/50 transition-transform duration-300 hover:scale-110">
@@ -226,10 +226,10 @@ export function MovieCard({
                     </div>
 
                     {/* Card Actions Footer */}
-                    <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                        <div className="flex items-center gap-3 text-xs text-zinc-400">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/5 mt-auto">
+                        <div className="flex items-center gap-2 text-xs text-zinc-400 shrink-0">
                             <span
-                                className="flex items-center gap-1 hover:text-zinc-200 cursor-pointer"
+                                className="flex items-center gap-1 hover:text-zinc-200 cursor-pointer transition-colors"
                                 onClick={() => onViewDetails(movie)}
                                 title="Reviews & Comments"
                             >
@@ -238,13 +238,13 @@ export function MovieCard({
                             </span>
                         </div>
 
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 shrink-0 ml-auto">
                             {movie.youtubeLink && (
                                 <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setShowTrailer(true)}
-                                    className="h-7 text-xs border-red-500/30 bg-red-600/10 text-red-400 hover:bg-red-600 hover:text-white rounded-lg transition-colors px-2.5"
+                                    className="h-7 text-xs border-red-500/30 bg-red-600/10 text-red-400 hover:bg-red-600 hover:text-white rounded-lg transition-colors px-2 shrink-0"
                                 >
                                     <Play className="h-3 w-3 fill-current mr-1" />
                                     Trailer
@@ -252,10 +252,20 @@ export function MovieCard({
                             )}
 
                             <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => onEdit(movie)}
+                                className="h-7 text-xs border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-600 hover:text-white rounded-lg transition-colors px-2 flex items-center gap-1 shrink-0"
+                            >
+                                <Edit3 className="h-3 w-3" />
+                                Edit
+                            </Button>
+
+                            <Button
                                 variant="secondary"
                                 size="sm"
                                 onClick={() => onViewDetails(movie)}
-                                className="h-7 text-xs bg-zinc-800 text-white hover:bg-zinc-700 rounded-lg px-2.5"
+                                className="h-7 text-xs bg-zinc-800 text-white hover:bg-zinc-700 rounded-lg px-2 shrink-0"
                             >
                                 Inspect
                             </Button>

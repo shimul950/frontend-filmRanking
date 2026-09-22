@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { IMovie } from "@/src/types/movie.types";
 import { IGenre } from "@/src/types/genre.types";
 import { IPlatform } from "@/src/types/platform.types";
+import { ICast } from "@/src/types/cast.types";
+import { IDirector } from "@/src/types/director.types";
+import { getAllMoviesAction } from "@/src/app/(dashboardRoute)/admin/dashboard/movie-management/_action/getAllMovies.action";
 import { calculateMovieStats } from "./movie-helpers";
 import { MovieCard } from "./MovieCard";
 import { MovieTable } from "./MovieTable";
@@ -39,14 +43,25 @@ interface MovieManagementViewProps {
     initialMovies: IMovie[];
     genres: IGenre[];
     platforms: IPlatform[];
+    casts?: ICast[];
+    directors?: IDirector[];
 }
 
 export function MovieManagementView({
     initialMovies,
     genres,
     platforms,
+    casts = [],
+    directors = [],
 }: MovieManagementViewProps) {
     const router = useRouter();
+
+    const [movies, setMovies] = useState<IMovie[]>(initialMovies);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    useEffect(() => {
+        setMovies(initialMovies);
+    }, [initialMovies]);
 
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedGenreFilter, setSelectedGenreFilter] = useState("all");
@@ -61,11 +76,11 @@ export function MovieManagementView({
     const [deletingMovie, setDeletingMovie] = useState<IMovie | null>(null);
     const [inspectingMovie, setInspectingMovie] = useState<IMovie | null>(null);
 
-    const stats = useMemo(() => calculateMovieStats(initialMovies), [initialMovies]);
+    const stats = useMemo(() => calculateMovieStats(movies), [movies]);
 
     // Filtering and sorting
     const filteredMovies = useMemo(() => {
-        let result = [...initialMovies];
+        let result = [...movies];
 
         // Search query
         if (searchTerm.trim()) {
@@ -114,10 +129,22 @@ export function MovieManagementView({
         });
 
         return result;
-    }, [initialMovies, searchTerm, selectedGenreFilter, selectedPlatformFilter, sortBy]);
+    }, [movies, searchTerm, selectedGenreFilter, selectedPlatformFilter, sortBy]);
 
-    const handleRefresh = () => {
-        router.refresh();
+    const handleRefresh = async () => {
+        setIsRefreshing(true);
+        try {
+            const res = await getAllMoviesAction({ limit: 100 });
+            if (res?.data) {
+                setMovies(res.data);
+            }
+            router.refresh();
+            toast.success("Movie catalog updated!");
+        } catch {
+            router.refresh();
+        } finally {
+            setIsRefreshing(false);
+        }
     };
 
     return (
@@ -142,10 +169,12 @@ export function MovieManagementView({
                         variant="outline"
                         size="sm"
                         onClick={handleRefresh}
-                        className="border-border bg-background text-muted-foreground hover:text-foreground text-xs h-9"
+                        disabled={isRefreshing}
+                        className="border-border bg-background text-muted-foreground hover:text-foreground text-xs h-9 font-semibold transition-all"
+                        title="Reload latest movie data"
                     >
-                        <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-                        Refresh
+                        <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isRefreshing ? "animate-spin text-red-500" : ""}`} />
+                        {isRefreshing ? "Refreshing..." : "Refresh Catalog"}
                     </Button>
                     <Button
                         variant="outline"
@@ -328,7 +357,7 @@ export function MovieManagementView({
                 {(searchTerm || selectedGenreFilter !== "all" || selectedPlatformFilter !== "all") && (
                     <div className="flex items-center justify-between text-xs text-zinc-400 pt-1">
                         <span>
-                            Showing {filteredMovies.length} of {initialMovies.length} movies
+                            Showing {filteredMovies.length} of {movies.length} movies
                         </span>
                         <button
                             onClick={() => {
@@ -387,7 +416,7 @@ export function MovieManagementView({
             <SeedMoviesModal
                 isOpen={isSeedOpen}
                 onClose={() => setIsSeedOpen(false)}
-                existingMovies={initialMovies}
+                existingMovies={movies}
                 genres={genres}
                 platforms={platforms}
                 onSuccess={handleRefresh}
@@ -398,6 +427,8 @@ export function MovieManagementView({
                 onClose={() => setIsCreateOpen(false)}
                 genres={genres}
                 platforms={platforms}
+                casts={casts}
+                directors={directors}
                 onSuccess={handleRefresh}
             />
 
@@ -407,6 +438,8 @@ export function MovieManagementView({
                 movie={editingMovie}
                 genres={genres}
                 platforms={platforms}
+                casts={casts}
+                directors={directors}
                 onSuccess={handleRefresh}
             />
 
@@ -422,6 +455,7 @@ export function MovieManagementView({
                 onClose={() => setInspectingMovie(null)}
                 movie={inspectingMovie}
                 onMovieUpdated={handleRefresh}
+                onEditMovie={(m) => setEditingMovie(m)}
             />
         </div>
     );

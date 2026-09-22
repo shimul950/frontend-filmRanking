@@ -4,7 +4,6 @@ import { getMeAction } from "@/src/app/(commonRoute)/(auth)/_actions/getme.actio
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 
 import { DashboardHeader } from "@/components/modules/dashboard/DashboardHeader"
-import { DashboardSidebar } from "@/components/modules/dashboard/user/DashboardSidebar"
 import { AdminSidebar } from "@/components/modules/dashboard/admin/AdminSidebar"
 
 
@@ -24,9 +23,9 @@ export default async function AdminDashboardLayout({
     return (
         <SidebarProvider>
             <AdminSidebar />
-            <SidebarInset>
+            <SidebarInset className="overflow-x-hidden max-w-full">
                 <DashboardHeader title = {dashboardTitle}/>
-                <div className="flex-1 p-4 md:p-6">{children}</div>
+                <div className="flex-1 w-full max-w-full overflow-x-hidden p-3 sm:p-4 md:p-6">{children}</div>
             </SidebarInset>
         </SidebarProvider>
     )
