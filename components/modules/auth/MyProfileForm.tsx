@@ -34,7 +34,7 @@ export default function MyProfileForm({ user }: { user: IProfileUser }) {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
     const { mutateAsync, isPending } = useMutation({
-        mutationFn: (payload: { name: string; image?: File }) => updateProfileAction(payload),
+        mutationFn: (formData: FormData) => updateProfileAction(formData),
     })
 
     const form = useForm({
@@ -46,7 +46,13 @@ export default function MyProfileForm({ user }: { user: IProfileUser }) {
             setServerError(null);
             setSuccess(false);
             try {
-                const result = await mutateAsync(value) as any;
+                const formData = new FormData();
+                formData.append("name", value.name.trim());
+                if (value.image && value.image.size > 0) {
+                    formData.append("file", value.image);
+                }
+
+                const result = await mutateAsync(formData) as any;
                 if (!result.success) {
                     setServerError(result.messsage || "Failed to update profile");
                     return;
@@ -143,11 +149,18 @@ export default function MyProfileForm({ user }: { user: IProfileUser }) {
                                                 <label className="text-sm font-medium">Avatar</label>
                                                 <input
                                                     type="file"
-                                                    accept="image/*"
+                                                    accept="image/png, image/jpeg, image/jpg, image/webp"
                                                     onChange={(e) => {
                                                         const file = e.target.files?.[0];
-                                                        field.handleChange(file);
-                                                        if (file) setPreviewUrl(URL.createObjectURL(file));
+                                                        if (file) {
+                                                            if (file.size > 4.5 * 1024 * 1024) {
+                                                                setServerError("Avatar image must be smaller than 4.5MB.");
+                                                                return;
+                                                            }
+                                                            setServerError(null);
+                                                            field.handleChange(file);
+                                                            setPreviewUrl(URL.createObjectURL(file));
+                                                        }
                                                     }}
                                                     className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-primary-foreground cursor-pointer"
                                                 />

@@ -45,7 +45,7 @@ export function DashboardSidebar() {
     const { user } = useAuth()
 
     const isAdmin = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN"
-    
+
 
     return (
         <Sidebar collapsible="icon">

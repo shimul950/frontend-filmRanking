@@ -1,18 +1,19 @@
-"use server"
+"use server";
 
-import { httpClient } from "@/lib/axios/httpClient";
 import { buildCookieHeader } from "@/lib/cookie-relay";
 import { ApiErrorResponse } from "@/src/types/api.types";
+import axios from "axios";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
-import FormData from "form-data";
-import { revalidatePath } from "next/cache";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export const updateProfileAction = async (
-    payload: { name: string; image?: File }
-): Promise<{ success: true } | ApiErrorResponse> => {
-    if (!payload.name || payload.name.trim().length < 2) {
-        return { success: false, messsage: "Name is too short" };
+export async function updateProfileAction(
+    formData: FormData
+): Promise<{ success: true; data?: any } | ApiErrorResponse> {
+    const name = formData.get("name")?.toString();
+    if (!name || name.trim().length < 2) {
+        return { success: false, messsage: "Name must be at least 2 characters long" };
     }
 
     const cookieStore = await cookies();
@@ -23,30 +24,33 @@ export const updateProfileAction = async (
     }
 
     try {
-        const form = new FormData();
-        form.append("name", payload.name);
+        const response = await axios.patch(
+            `${API_BASE_URL}/auth/update-profile`,
+            formData,
+            {
+                headers: {
+                    Cookie: cookieHeader,
+                },
+                maxBodyLength: Infinity,
+                maxContentLength: Infinity,
+            }
+        );
 
-        if (payload.image && payload.image.size > 0) {
-            const buffer = Buffer.from(await payload.image.arrayBuffer());
-            form.append("file", buffer, {
-                filename: payload.image.name,
-                contentType: payload.image.type,
-            });
-        }
-
-        await httpClient.patchRaw("/auth/update-profile", form, {
-            headers: {
-                Cookie: cookieHeader,
-                ...form.getHeaders(), // sets multipart/form-data + boundary
-            },
-        });
-
+        revalidatePath("/myProfile");
         revalidatePath("/my-profile");
-        return { success: true };
-    } catch (error: any) {
+        revalidatePath("/dashboard");
+
+        return { success: true, data: response.data?.data };
+    } catch (error: unknown) {
+        let message = "Failed to update profile";
+        if (axios.isAxiosError(error)) {
+            message = error.response?.data?.message || error.message;
+        } else if (error instanceof Error) {
+            message = error.message;
+        }
         return {
             success: false,
-            messsage: error?.response?.data?.message || "Failed to update profile",
+            messsage: message,
         };
     }
-};
+}

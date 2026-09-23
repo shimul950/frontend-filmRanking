@@ -123,7 +123,7 @@ export default function LoginForm() {
                         )}
                     </form.Field>
 
-  
+
                     <div className='text-right mt-2 mb-4'>
                         <Link href="/forgot-password"
                             className="text-sm text-primary hover:underline focus:text-primary focus:underline underline-offset-4"
@@ -169,7 +169,7 @@ export default function LoginForm() {
                     </div>
                 </div>
 
-                <Button 
+                <Button
                     variant='outline'
                     className='w-full'
                     onClick={() => {

@@ -111,11 +111,10 @@ export default function Navbar() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                    isActive
+                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${isActive
                       ? "text-red-600 dark:text-red-500 bg-red-500/10"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                  }`}
+                    }`}
                 >
                   {link.label}
                 </Link>
